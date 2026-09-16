@@ -1,0 +1,190 @@
+﻿@model KurumTahsilatSistemi.MachineLearning.Models.MusteriRiskSonucu
+
+@{
+    ViewData["Title"] = "Müşteri Risk Detayı";
+
+    var riskSinifi =
+        Model.RiskSeviyesi switch
+        {
+            "Düşük" => "bg-success",
+            "Orta" => "bg-warning text-dark",
+            _ => "bg-danger"
+        };
+}
+
+<div class="d-flex flex-column flex-md-row
+            justify-content-between align-items-md-center
+            gap-3 mb-4">
+
+    <div>
+        <h2 class="mb-2">
+            Müşteri Risk Detayı
+        </h2>
+
+        <p class="text-muted mb-0">
+            @Model.AdSoyad – @Model.MusteriNo
+        </p>
+    </div>
+
+    <a asp-action="MusteriRiskleri"
+       class="btn btn-secondary">
+        Müşteri Risklerine Dön
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-2">
+                    Tahmini zamanında ödeme
+                </div>
+
+                @if (Model.TahminYapildiMi)
+                {
+                    <div class="display-6 fw-bold">
+                        @(Model.TahminiZamanindaOdemeOlasiligi.ToString("P1"))
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted">
+                        Tahmin oluşturulamadı
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-2">
+                    Risk seviyesi
+                </div>
+
+                @if (Model.TahminYapildiMi)
+                {
+                    <span class="badge @riskSinifi fs-6">
+                        @Model.RiskSeviyesi
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">
+                        Analiz edilmedi
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-2">
+                    Geçmiş zamanında ödeme oranı
+                </div>
+
+                <div class="display-6 fw-bold">
+                    @(Model.GecmisZamanindaOdemeOrani.ToString("P1"))
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@if (!Model.TahminYapildiMi)
+{
+    <div class="alert alert-info">
+        @Model.Aciklama
+    </div>
+}
+
+<div class="card">
+
+    <div class="card-header">
+        Ödenmemiş Borç Riskleri
+    </div>
+
+    <div class="card-body p-0">
+
+        @if (!Model.BorcRiskleri.Any())
+        {
+            <div class="p-4 text-muted">
+                Analiz edilebilecek ödenmemiş borç bulunmamaktadır.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover
+                                  align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Referans</th>
+                            <th>Kurum</th>
+                            <th>Ürün</th>
+                            <th>Tutar</th>
+                            <th>Son Ödeme</th>
+                            <th>Olasılık</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var borc in Model.BorcRiskleri)
+                        {
+                            var borcRiskSinifi =
+                            borc.RiskSeviyesi switch
+                            {
+                                "Düşük" =>
+                                            "bg-success",
+
+                                "Orta" =>
+                                            "bg-warning text-dark",
+
+                                _ =>
+                                            "bg-danger"
+                            };
+
+                            <tr>
+                                <td>@borc.ReferansNo</td>
+                                <td>@borc.KurumAdi</td>
+                                <td>@borc.UrunAdi</td>
+
+                                <td>
+                                    @(borc.BorcTutari.ToString("N2")) TL
+                                </td>
+
+                                <td>
+                                    @(borc.SonOdemeTarihi.ToString("dd.MM.yyyy"))
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        @(borc.ZamanindaOdemeOlasiligi.ToString("P1"))
+                                    </strong>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                                         @borcRiskSinifi">
+                                        @borc.RiskSeviyesi
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+
+            </div>
+        }
+
+    </div>
+</div>

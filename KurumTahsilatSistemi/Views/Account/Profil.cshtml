@@ -1,0 +1,336 @@
+﻿@model KurumTahsilatSistemi.ViewModels.KullaniciProfilViewModel
+
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-10">
+
+        <div class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-3 mb-4">
+
+            <div>
+                <h2 class="mb-1">
+                    Profilim
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Hesap, müşteri ve ödeme bilgilerinizi
+                    görüntüleyebilirsiniz.
+                </p>
+            </div>
+
+            <a asp-controller="Account"
+               asp-action="SifreDegistir"
+               class="btn btn-primary">
+
+                Şifre Değiştir
+            </a>
+
+        </div>
+
+        @if (TempData["BasariliMesaj"] is not null)
+        {
+            <div class="alert alert-success">
+                @TempData["BasariliMesaj"]
+            </div>
+        }
+
+        <div class="row g-4">
+
+            <div class="col-lg-5">
+
+                <div class="card h-100 profil-karti">
+
+                    <div class="card-body">
+
+                        <div class="profil-avatar">
+                            @(string.IsNullOrWhiteSpace(Model.AdSoyad)
+                                                        ? "K"
+                                                        : Model.AdSoyad[..1].ToUpper())
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <h4 class="mb-1">
+                                @Model.AdSoyad
+                            </h4>
+
+                            <div class="text-muted">
+                                @Model.Email
+                            </div>
+                        </div>
+
+                        <div class="profil-satiri">
+                            <span>Müşteri Numarası</span>
+                            <strong>@Model.MusteriNo</strong>
+                        </div>
+
+                        <div class="profil-satiri">
+                            <span>Telefon</span>
+                            <strong>@Model.Telefon</strong>
+                        </div>
+
+                        <div class="profil-satiri">
+                            <span>Adres</span>
+                            <strong>@Model.Adres</strong>
+                        </div>
+
+                        <div class="profil-satiri">
+                            <span>Hesap Oluşturma Tarihi</span>
+
+                            <strong>
+                                @(Model.HesapOlusturmaTarihi.ToString("dd.MM.yyyy HH:mm"))
+                                                                
+                            </strong>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-7">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <div class="profil-ozet-karti">
+
+                            <span>Toplam Ödeme</span>
+
+                            <strong>
+                                @(Model.ToplamOdemeTutari
+                                                                .ToString("N2")) TL
+                            </strong>
+
+                            <small>
+                                Başarılı tahsilatlar
+                            </small>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="profil-ozet-karti">
+
+                            <span>Toplam Borç</span>
+
+                            <strong>
+                                @(Model.ToplamBorcTutari
+                                                                .ToString("N2")) TL
+                            </strong>
+
+                            <small>
+                                Tanımlanan tüm borçlar
+                            </small>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="profil-ozet-karti
+                                    kalan-karti">
+
+                            <span>Kalan Toplam Borç</span>
+
+                            <strong>
+                                @(Model.KalanToplamBorc
+                                                                .ToString("N2")) TL
+                            </strong>
+
+                            <small>
+                                Henüz tahsil edilmemiş tutar
+                            </small>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="profil-ozet-karti
+                                    gecikmis-karti">
+
+                            <span>Gecikmiş Borç</span>
+
+                            <strong>
+                                @Model.GecikmisBorcSayisi
+                            </strong>
+
+                            <small>
+                                Vadesi geçmiş borç sayısı
+                            </small>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card mt-4">
+
+                    <div class="card-header">
+                        Hesap Özeti
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="d-flex
+                                    justify-content-between
+                                    align-items-center
+                                    py-2 border-bottom">
+
+                            <span class="text-muted">
+                                Ödenmemiş borç sayısı
+                            </span>
+
+                            <strong>
+                                @Model.OdenmemisBorcSayisi
+                            </strong>
+
+                        </div>
+
+                        <div class="d-flex
+                                    justify-content-between
+                                    align-items-center
+                                    py-2">
+
+                            <span class="text-muted">
+                                Hesap durumu
+                            </span>
+
+                            @if (Model.AktifMi)
+                            {
+                                <span class="badge bg-success">
+                                    Aktif
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Pasif
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .profil-karti {
+        border: 1px solid #dce4ee;
+        border-radius: 15px;
+        box-shadow: 0 8px 24px rgba(18, 59, 109, 0.08);
+    }
+
+    .profil-avatar {
+        width: 78px;
+        height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 4px auto 14px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #123b6d, #1d5b9e);
+        color: white;
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .profil-satiri {
+        padding: 13px 0;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+        .profil-satiri:last-child {
+            border-bottom: none;
+        }
+
+        .profil-satiri span {
+            display: block;
+            margin-bottom: 4px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .profil-satiri strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .profil-ozet-karti {
+        min-height: 145px;
+        padding: 22px;
+        border: 1px solid #dce4ee;
+        border-radius: 14px;
+        background-color: white;
+        box-shadow: 0 8px 24px rgba(18, 59, 109, 0.08);
+    }
+
+        .profil-ozet-karti span,
+        .profil-ozet-karti small {
+            display: block;
+        }
+
+        .profil-ozet-karti span {
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .profil-ozet-karti strong {
+            display: block;
+            margin: 9px 0;
+            color: #123b6d;
+            font-size: 25px;
+        }
+
+        .profil-ozet-karti small {
+            color: #98a2b3;
+            font-size: 12px;
+        }
+
+    .kalan-karti {
+        border-color: #f0d89a;
+        background-color: #fffbef;
+    }
+
+        .kalan-karti strong {
+            color: #936714;
+        }
+
+    .gecikmis-karti {
+        border-color: #f0b6b6;
+        background-color: #fff5f5;
+    }
+
+        .gecikmis-karti strong {
+            color: #b42318;
+        }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 8px;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-active {
+        background-color: #15967d;
+    }
+
+    .status-passive {
+        background-color: #6b7280;
+    }
+</style>

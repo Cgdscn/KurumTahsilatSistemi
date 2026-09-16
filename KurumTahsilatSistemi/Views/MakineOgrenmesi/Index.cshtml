@@ -1,0 +1,283 @@
+﻿@{
+    ViewData["Title"] = "Makine Öğrenmesi";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <h2 class="mb-2">
+                Makine Öğrenmesi Yönetimi
+            </h2>
+
+            <p class="text-muted mb-0">
+                Ödeme riski tahmin modelinde kullanılacak
+                sentetik eğitim verileri oluşturulabilir.
+            </p>
+        </div>
+
+        @if (TempData["BasariliMesaj"] is not null)
+        {
+            <div class="alert alert-success">
+                @TempData["BasariliMesaj"]
+
+                @if (TempData["DosyaYolu"] is not null)
+                {
+                    <div class="small mt-2">
+                        <strong>Dosya:</strong>
+                        @TempData["DosyaYolu"]
+                    </div>
+                }
+            </div>
+        }
+
+        @if (TempData["HataMesaji"] is not null)
+        {
+            <div class="alert alert-danger">
+                @TempData["HataMesaji"]
+            </div>
+        }
+
+        @if (TempData["ModelBasarili"] is not null)
+        {
+            <div class="alert alert-success mt-4">
+
+                <h5>
+                    @TempData["ModelBasarili"]
+                </h5>
+
+                <div class="row g-3 mt-1">
+
+                    <div class="col-md-4">
+                        <strong>Accuracy</strong>
+                        <div>
+                            @TempData["Accuracy"]
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <strong>Precision</strong>
+                        <div>
+                            @TempData["Precision"]
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <strong>Recall</strong>
+                        <div>
+                            @TempData["Recall"]
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <strong>F1 Score</strong>
+                        <div>
+                            @TempData["F1"]
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <strong>AUC</strong>
+                        <div>
+                            @TempData["Auc"]
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <strong>Eğitim / Test</strong>
+
+                        <div>
+                            @TempData["EgitimSayisi"]
+                            /
+                            @TempData["TestSayisi"]
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="small mt-3">
+                    <strong>Model dosyası:</strong>
+                    @TempData["ModelDosyaYolu"]
+                </div>
+
+            </div>
+        }
+
+        <div class="card">
+
+            <div class="card-header">
+                Sentetik Eğitim Veri Seti
+            </div>
+
+            <div class="card-body">
+
+                <div class="alert alert-info">
+                    Oluşturulan kayıtlar gerçek müşteri
+                    bilgisi içermez ve uygulamanın veri
+                    tabanına eklenmez.
+                </div>
+
+                <form asp-action="VeriSetiOlustur"
+                      method="post">
+
+                    <div class="mb-3">
+                        <label for="kayitSayisi"
+                               class="form-label">
+                            Üretilecek kayıt sayısı
+                        </label>
+
+                        <input type="number"
+                               id="kayitSayisi"
+                               name="kayitSayisi"
+                               class="form-control"
+                               value="5000"
+                               min="100"
+                               max="100000"
+                               required />
+
+                        <div class="form-text">
+                            Başlangıç için 5.000 kayıt
+                            yeterlidir.
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary"
+                            onclick="this.disabled=true;
+                                     this.innerText='Oluşturuluyor...';
+                                     this.form.submit();">
+
+                        Veri Setini Oluştur
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="card mt-4">
+
+            <div class="card-header">
+                FastTree Model Eğitimi
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    Oluşturulan CSV verisi yüzde 80 eğitim ve
+                    yüzde 20 test olarak ayrılacaktır.
+                </p>
+
+                <form asp-action="ModeliEgit"
+                      method="post">
+
+                    <button type="submit"
+                            class="btn btn-success">
+
+                        Modeli Eğit
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="card mt-4">
+
+            <div class="card-header">
+                Sistem Müşterilerini Analiz Et
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    Sistemde kayıtlı müşterilerin ödenmemiş
+                    borçları eğitilmiş FastTree modeliyle
+                    analiz edilir.
+                </p>
+
+                <a asp-action="MusteriRiskleri"
+                   class="btn btn-primary">
+                    Tüm Müşterileri Test Et
+                </a>
+
+            </div>
+        </div>
+
+        <div class="card mt-4">
+
+            <div class="card-header">
+                Oluşturulan Veri Özellikleri
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <div class="ml-bilgi">
+                            <strong>Borç bilgileri</strong>
+                            <span>
+                                Tutar, vade süresi, ay ve
+                                haftanın günü
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="ml-bilgi">
+                            <strong>Ödeme geçmişi</strong>
+                            <span>
+                                Geçmiş borç ve zamanında
+                                ödeme sayıları
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="ml-bilgi">
+                            <strong>Müşteri davranışı</strong>
+                            <span>
+                                Ödeme oranı ve ortalama
+                                gecikme günü
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="ml-bilgi">
+                            <strong>Kategorik bilgiler</strong>
+                            <span>
+                                Kurum, ürün ve müşteri tipi
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .ml-bilgi {
+        height: 100%;
+        padding: 16px;
+        border: 1px solid #dce4ee;
+        border-radius: 10px;
+        background-color: #f8fafc;
+    }
+
+        .ml-bilgi strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #123b6d;
+        }
+
+        .ml-bilgi span {
+            color: #667085;
+            font-size: 13px;
+        }
+</style>

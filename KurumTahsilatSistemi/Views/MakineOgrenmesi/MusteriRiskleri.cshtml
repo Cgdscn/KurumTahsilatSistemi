@@ -1,0 +1,232 @@
+﻿@model IEnumerable<
+KurumTahsilatSistemi.MachineLearning.Models.MusteriRiskSonucu >
+
+@{
+    ViewData["Title"] = "Müşteri Risk Analizi";
+
+    var tahminYapilanlar =
+        Model.Where(x => x.TahminYapildiMi).ToList();
+
+    var yuksekRisk =
+        tahminYapilanlar.Count(
+            x => x.RiskSeviyesi == "Yüksek");
+
+    var ortaRisk =
+        tahminYapilanlar.Count(
+            x => x.RiskSeviyesi == "Orta");
+
+    var dusukRisk =
+        tahminYapilanlar.Count(
+            x => x.RiskSeviyesi == "Düşük");
+}
+
+<div class="d-flex flex-column flex-md-row
+            justify-content-between align-items-md-center
+            gap-3 mb-4">
+
+    <div>
+        <h2 class="mb-2">
+            Müşteri Risk Analizi
+        </h2>
+
+        <p class="text-muted mb-0">
+            Sistemdeki müşterilerin ödenmemiş borçları,
+            ödeme riski modeliyle analiz edildi.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        ML Yönetimine Dön
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="risk-ozet-karti">
+            <span>Toplam müşteri</span>
+            <strong>@Model.Count()</strong>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="risk-ozet-karti dusuk">
+            <span>Düşük risk</span>
+            <strong>@dusukRisk</strong>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="risk-ozet-karti orta">
+            <span>Orta risk</span>
+            <strong>@ortaRisk</strong>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="risk-ozet-karti yuksek">
+            <span>Yüksek risk</span>
+            <strong>@yuksekRisk</strong>
+        </div>
+    </div>
+
+</div>
+
+<div class="card">
+
+    <div class="card-header">
+        Müşteri Risk Sonuçları
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover
+                          align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Müşteri</th>
+                        <th>Tip</th>
+                        <th>Toplam Borç</th>
+                        <th>Ödenmemiş</th>
+                        <th>Ödenmemiş Tutar</th>
+                        <th>Geçmiş Başarı</th>
+                        <th>Tahmin</th>
+                        <th>Risk</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">
+                                    @item.AdSoyad
+                                </div>
+
+                                <div class="small text-muted">
+                                    @item.MusteriNo
+                                </div>
+                            </td>
+
+                            <td>
+                                @item.MusteriTipi
+                            </td>
+
+                            <td>
+                                @item.ToplamBorcSayisi
+                            </td>
+
+                            <td>
+                                @item.OdenmemisBorcSayisi
+                            </td>
+
+                            <td>
+                                @(item.ToplamOdenmemisTutar.ToString("N2")) TL
+                            </td>
+
+                            <td>
+                                @(item.GecmisZamanindaOdemeOrani.ToString("P1"))
+                            </td>
+
+                            <td>
+                                @if (item.TahminYapildiMi)
+                                {
+                                    <strong>
+                                        @(item.TahminiZamanindaOdemeOlasiligi.ToString("P1"))
+                                    </strong>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Tahmin yok
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (item.TahminYapildiMi)
+                                {
+                                    var sinif =
+                                    item.RiskSeviyesi switch
+                                    {
+                                        "Düşük" =>
+                                                            "bg-success",
+
+                                        "Orta" =>
+                                                            "bg-warning text-dark",
+
+                                        _ =>
+                                                            "bg-danger"
+                                    };
+
+                                    <span class="badge @sinif">
+                                        @item.RiskSeviyesi
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Analiz edilmedi
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-action="MusteriRiskDetay"
+                                   asp-route-id="@item.MusteriId"
+                                   class="btn btn-sm
+                                              btn-outline-primary">
+                                    Detay
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .risk-ozet-karti {
+        height: 100%;
+        padding: 18px;
+        border: 1px solid #dce4ee;
+        border-left: 4px solid #123b6d;
+        border-radius: 10px;
+        background-color: #ffffff;
+    }
+
+        .risk-ozet-karti span {
+            display: block;
+            margin-bottom: 8px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .risk-ozet-karti strong {
+            color: #123b6d;
+            font-size: 26px;
+        }
+
+        .risk-ozet-karti.dusuk {
+            border-left-color: #198754;
+        }
+
+        .risk-ozet-karti.orta {
+            border-left-color: #ffc107;
+        }
+
+        .risk-ozet-karti.yuksek {
+            border-left-color: #dc3545;
+        }
+</style>

@@ -1,0 +1,406 @@
+﻿@model KurumTahsilatSistemi.ViewModels.BorcSorgulaViewModel
+
+@{
+    ViewData["Title"] = "Aktif Borçlar";
+
+    var toplamKalanBorc =
+        Model.Borclar.Sum(x =>
+            Math.Max(
+                0,
+                x.BorcTutari -
+                x.OdenenTutar));
+}
+
+<div class="d-flex flex-wrap
+            justify-content-between
+            align-items-center
+            gap-3 mb-4">
+
+    <div>
+        <h2 class="mb-1">
+            Aktif Borçlar
+        </h2>
+
+        <p class="text-muted mb-0">
+            Sistemdeki ödenmemiş ve kısmi ödenmiş
+            bütün borçları görüntüleyebilirsiniz.
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <span class="badge bg-primary fs-6">
+            @Model.Borclar.Count kayıt
+        </span>
+
+        <span class="badge bg-danger fs-6">
+            @(toplamKalanBorc.ToString("N2")) TL
+        </span>
+
+    </div>
+</div>
+
+<div class="card filtre-karti mb-4">
+
+    <div class="card-header">
+        <strong>
+            Arama ve Filtreleme
+        </strong>
+    </div>
+
+    <div class="card-body">
+
+        <form asp-controller="Borclar"
+              asp-action="Sorgula"
+              method="get">
+
+            <div class="row g-3">
+
+                <div class="col-lg-3 col-md-6">
+
+                    <label asp-for="MusteriNo"
+                           class="form-label">
+
+                        Müşteri Numarası
+                    </label>
+
+                    <input asp-for="MusteriNo"
+                           class="form-control"
+                           placeholder="Örn. MUS1001" />
+
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+
+                    <label asp-for="ReferansNo"
+                           class="form-label">
+
+                        Referans Numarası
+                    </label>
+
+                    <input asp-for="ReferansNo"
+                           class="form-control"
+                           placeholder="Referans numarası" />
+
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+
+                    <label asp-for="KurumId"
+                           class="form-label">
+
+                        Kurum
+                    </label>
+
+                    <select asp-for="KurumId"
+                            class="form-select">
+
+                        <option value="">
+                            Tüm kurumlar
+                        </option>
+
+                        @foreach (var kurum in Model.Kurumlar)
+                        {
+                            <option value="@kurum.Id">
+                                @kurum.KurumAdi
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6
+                            d-flex align-items-end">
+
+                    <div class="d-flex gap-2 w-100">
+
+                        <button type="submit"
+                                class="btn btn-primary flex-fill">
+
+                            <i class="bi bi-search me-1"></i>
+                            Filtrele
+                        </button>
+
+                        <a asp-controller="Borclar"
+                           asp-action="Sorgula"
+                           class="btn btn-outline-secondary">
+
+                            Temizle
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@if (!Model.Borclar.Any())
+{
+    <div class="card bos-kayit-karti">
+
+        <div class="card-body text-center py-5">
+
+            <div class="bos-kayit-simge mb-3">
+                <i class="bi bi-check-circle"></i>
+            </div>
+
+            <h5>
+                Aktif borç bulunamadı
+            </h5>
+
+            <p class="text-muted mb-3">
+                Filtrelere uygun ödenmemiş veya
+                kısmi ödenmiş borç kaydı bulunmamaktadır.
+            </p>
+
+            <a asp-controller="Borclar"
+               asp-action="Sorgula"
+               class="btn btn-outline-primary">
+
+                Filtreleri Temizle
+            </a>
+
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="card tablo-karti">
+
+        <div class="table-responsive">
+
+            <table class="table
+                              table-hover
+                              align-middle
+                              mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Müşteri</th>
+                        <th>Müşteri No</th>
+                        <th>Kurum</th>
+                        <th>Ürün</th>
+                        <th>Referans No</th>
+                        <th>Toplam Borç</th>
+                        <th>Ödenen</th>
+                        <th>Kalan</th>
+                        <th>Son Ödeme</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var borc in Model.Borclar)
+                    {
+                        var kalanTutar =
+                        Math.Max(
+                        0,
+                        borc.BorcTutari -
+                        borc.OdenenTutar);
+
+                        var gecikmedeMi =
+                        borc.SonOdemeTarihi.Date <
+                        DateTime.Today;
+
+                        var gecikenGun =
+                        gecikmedeMi
+                        ? (DateTime.Today -
+                        borc.SonOdemeTarihi.Date)
+                        .Days
+                        : 0;
+
+                        <tr class="@(gecikmedeMi
+                                                        ? "gecikmis-satir"
+                                                        : "")">
+
+                            <td>
+                                <strong>
+                                    @(borc.Musteri?.AdSoyad
+                                                                ?? borc.MusteriAdi
+                                                                ?? "-")
+                                                                   </strong>
+                                                               </td>
+
+                            <td>
+                                <span class="musteri-no">
+                                    @(borc.Musteri?.MusteriNo
+                                                                ?? "-")
+                                                                   </span>
+                                                               </td>
+
+                            <td>
+                                @(borc.TahsilatUrunu?
+                                                        .Kurum?
+                                                        .KurumAdi ?? "-")
+                                                                     </td>
+
+                            <td>
+                                @(borc.TahsilatUrunu?
+                                                        .UrunAdi ?? "-")
+                                                                    </td>
+
+                            <td>
+                                <span class="referans-no">
+                                    @(borc.ReferansNo ?? "-")
+                                </span>
+                            </td>
+
+                            <td>
+                                @(borc.BorcTutari
+                                                        .ToString("N2")) TL
+                                                                    </td>
+
+                            <td>
+                                @(borc.OdenenTutar
+                                                        .ToString("N2")) TL
+                                                                    </td>
+
+                            <td>
+                                <strong class="text-danger">
+                                    @(kalanTutar
+                                                                .ToString("N2")) TL
+                        </strong>
+                    </td>
+
+                            <td>
+                                <span class="@(gecikmedeMi
+                                                                          ? "text-danger fw-semibold"
+                                                                          : "")">
+
+                            @borc.SonOdemeTarihi
+                            
+                        </span>
+
+                        @if (gecikmedeMi)
+                                {
+                                    <div class="small text-danger">
+                                        @gecikenGun gün gecikti
+                                    </div>
+                                }
+                            </td>
+
+                            <td>
+                                @if (gecikmedeMi &&
+                                                        borc.Durum ==
+                                                        "Kısmi Ödendi")
+                                {
+                                    <span class="badge bg-danger">
+                                        Gecikmiş - Kısmi
+                                    </span>
+                                }
+                                else if (gecikmedeMi)
+                                {
+                                    <span class="badge bg-danger">
+                                        Gecikmiş
+                                    </span>
+                                }
+                                else if (borc.Durum ==
+                                "Kısmi Ödendi")
+                                {
+                                    <span class="badge
+                                                             bg-warning
+                                                             text-dark">
+
+                                        Kısmi Ödendi
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Ödenmedi
+                                    </span>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
+
+<style>
+    .filtre-karti,
+    .tablo-karti,
+    .bos-kayit-karti {
+        overflow: hidden;
+        border: 1px solid #dce5ef;
+        border-radius: 13px;
+        background: #ffffff;
+        box-shadow: 0 7px 22px rgba(18, 59, 109, 0.06);
+    }
+
+        .filtre-karti .card-header {
+            padding: 15px 19px;
+            border-bottom: 1px solid #e5ebf2;
+            background: #f8fafc;
+            color: #173657;
+        }
+
+        .filtre-karti .card-body {
+            padding: 19px;
+        }
+
+        .tablo-karti thead th {
+            padding: 14px;
+            border: 0;
+            background: #123f72;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .tablo-karti tbody td {
+            padding: 14px;
+            border-color: #e8edf3;
+            color: #30445f;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .tablo-karti tbody tr:hover {
+            background: #f5f9fd;
+        }
+
+    .gecikmis-satir {
+        background: #fffafa;
+    }
+
+    .musteri-no,
+    .referans-no {
+        font-family: monospace;
+        font-weight: 650;
+    }
+
+    .bos-kayit-simge {
+        width: 58px;
+        height: 58px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: #e5f6ef;
+        color: #18966d;
+        font-size: 24px;
+    }
+
+    @@media (max-width: 767px) {
+        .filtre-karti .card-body {
+            padding: 15px;
+        }
+    }
+</style>

@@ -1,0 +1,381 @@
+:root {
+    --primary: #123b6d;
+    --primary-dark: #0b294d;
+    --primary-light: #1d5b9e;
+    --success: #15967d;
+    --danger: #d44848;
+    --warning: #e2a52b;
+    --page-background: #f4f7fb;
+    --surface: #ffffff;
+    --border: #dce4ee;
+    --text: #1d2939;
+    --muted: #667085;
+    --soft-shadow: 0 8px 24px rgba(18, 59, 109, 0.08);
+}
+
+html {
+    font-size: 14px;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    background-color: var(--page-background);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Üst menü */
+
+.navbar.bg-primary {
+    background: linear-gradient( 135deg, var(--primary-dark), var(--primary) ) !important;
+}
+
+.navbar {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+}
+
+    .navbar-brand:hover {
+        color: #ffffff !important;
+    }
+
+.navbar .nav-link {
+    margin-left: 4px;
+    padding: 9px 12px !important;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.78) !important;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+    .navbar .nav-link:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .navbar .nav-link.active {
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.18);
+    }
+
+/* Sayfa baþlýklarý */
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+h1,
+h2 {
+    margin-bottom: 18px;
+}
+
+.text-muted {
+    color: var(--muted) !important;
+}
+
+/* Kart yapýsý */
+
+.card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background-color: var(--surface);
+    box-shadow: var(--soft-shadow);
+}
+
+.card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    border-radius: 14px 14px 0 0 !important;
+    background-color: #f8fafc;
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* Form alanlarý */
+
+.form-label {
+    margin-bottom: 7px;
+    color: #344054;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    min-height: 46px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background-color: #ffffff;
+    color: var(--text);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 4px rgba(29, 91, 158, 0.12);
+    }
+
+    .form-control::placeholder {
+        color: #98a2b3;
+    }
+
+textarea.form-control {
+    min-height: 110px;
+}
+
+input[type="file"].form-control {
+    padding-top: 9px;
+}
+
+/* Doðrulama mesajlarý */
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.field-validation-error {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+/* Butonlar */
+
+.btn {
+    min-height: 42px;
+    padding: 8px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+.btn-primary {
+    border-color: var(--primary);
+    background-color: var(--primary);
+}
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        border-color: var(--primary-light);
+        background-color: var(--primary-light);
+        box-shadow: 0 6px 16px rgba(18, 59, 109, 0.22);
+    }
+
+.btn-success {
+    border-color: var(--success);
+    background-color: var(--success);
+}
+
+    .btn-success:hover,
+    .btn-success:focus {
+        border-color: #117b68;
+        background-color: #117b68;
+    }
+
+.btn-danger {
+    border-color: var(--danger);
+    background-color: var(--danger);
+}
+
+    .btn-danger:hover,
+    .btn-danger:focus {
+        border-color: #bb3838;
+        background-color: #bb3838;
+    }
+
+.btn-secondary {
+    border-color: #667085;
+    background-color: #667085;
+}
+
+.btn-outline-dark {
+    color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+    .btn-outline-dark:hover {
+        border-color: var(--primary-dark);
+        background-color: var(--primary-dark);
+    }
+
+/* Küçük butonlar */
+
+.btn-sm {
+    min-height: 34px;
+    padding: 6px 11px;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+/* Tablolar */
+
+.table-responsive {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background-color: #ffffff;
+    box-shadow: var(--soft-shadow);
+}
+
+.table {
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+    .table thead th {
+        padding: 14px;
+        border-color: rgba(255, 255, 255, 0.15);
+        background-color: var(--primary) !important;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 13px 14px;
+        border-color: #e8edf3;
+        color: #344054;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f4f8fc;
+        }
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: #fafbfd;
+}
+
+/* Uyarý kutularý */
+
+.alert {
+    padding: 16px 18px;
+    border: none;
+    border-radius: 11px;
+    box-shadow: 0 5px 15px rgba(18, 59, 109, 0.06);
+}
+
+.alert-success {
+    background-color: #e5f6f1;
+    color: #116653;
+}
+
+.alert-danger {
+    background-color: #fdeaea;
+    color: #a92f2f;
+}
+
+.alert-warning {
+    background-color: #fff4d8;
+    color: #805d10;
+}
+
+.alert-info {
+    background-color: #e8f3ff;
+    color: #285d8d;
+}
+
+/* Durum rozetleri */
+
+.badge {
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+
+.bg-success {
+    background-color: var(--success) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger) !important;
+}
+
+.bg-secondary {
+    background-color: #667085 !important;
+}
+
+/* TXT dosya formatý alaný */
+
+pre {
+    padding: 18px !important;
+    overflow-x: auto;
+    border: 1px solid var(--border) !important;
+    border-radius: 11px !important;
+    background-color: #f8fafc !important;
+    color: #344054;
+    line-height: 1.7;
+}
+
+/* Baðlantýlar */
+
+a {
+    color: var(--primary-light);
+}
+
+    a:hover {
+        color: var(--primary-dark);
+    }
+
+/* Footer */
+
+footer {
+    color: var(--muted);
+}
+
+/* Mobil düzen */
+
+@media (max-width: 991px) {
+    .navbar .nav-link {
+        margin-top: 5px;
+        margin-left: 0;
+    }
+
+    .navbar-nav {
+        padding-top: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        padding-top: 24px !important;
+    }
+
+    .card-body {
+        padding: 18px;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 11px;
+    }
+}

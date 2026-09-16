@@ -1,0 +1,1491 @@
+﻿@model KurumTahsilatSistemi.ViewModels.DashboardViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+
+    var adminMi = User.IsInRole("Admin");
+
+    var borcEtiketleri =
+        Model.BorcDurumEtiketleri?.ToList()
+        ?? new List<string>();
+
+    var borcSayilari =
+        Model.BorcDurumSayilari?.ToList()
+        ?? new List<int>();
+
+    var toplamBorcDurumSayisi =
+        borcSayilari.Sum();
+
+    string BorcRengi(int index)
+    {
+        return index switch
+        {
+            0 => "#f45b5b", // Ödenmedi - kırmızı
+            1 => "#f6b925", // Kısmi Ödendi - sarı
+            2 => "#35b889", // Ödendi - yeşil
+            _ => "#8091a7"
+        };
+    }
+}
+
+<div class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <h1>
+                @if (adminMi)
+                {
+                    <span>Kurum Tahsilat Yönetim Paneli</span>
+                }
+                else
+                {
+                    <span>Tahsilat İşlemlerim</span>
+                }
+            </h1>
+
+            <p>
+                @if (adminMi)
+                {
+                    <span>
+                        Kurum, borç ve tahsilat işlemlerine ait güncel
+                        sistem verilerini görüntüleyebilirsiniz.
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        Borçlarınızı, ödeme durumlarınızı ve tahsilat
+                        geçmişinizi görüntüleyebilirsiniz.
+                    </span>
+                }
+            </p>
+        </div>
+
+        <div class="dashboard-date">
+            <span class="date-icon">▣</span>
+
+            <span>
+                @DateTime.Now.ToString("dd.MM.yyyy")
+            </span>
+        </div>
+
+    </div>
+
+    @if (adminMi)
+    {
+        <!-- ANA İSTATİSTİK KARTLARI -->
+        <div class="row g-3 dashboard-main-cards">
+
+            <div class="col-xl-3 col-md-6">
+                <a asp-controller="Tahsilatlar"
+                   asp-action="Gecmis"
+                   class="dashboard-card-link">
+
+                    <div class="main-stat-card primary-stat-card">
+
+                        <div class="main-stat-icon primary-icon">
+                            ₺
+                        </div>
+
+                        <div class="main-stat-content">
+                            <span class="main-stat-title">
+                                Toplam Tahsilat Tutarı
+                            </span>
+
+                            <strong class="primary-value">
+                                @(Model.ToplamTahsilatTutari.ToString("N2")) TL
+                            </strong>
+
+                            <small>
+                                Başarılı işlemlerin toplam tutarı
+                            </small>
+                        </div>
+
+                        <div class="primary-card-shape"></div>
+                    </div>
+
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a asp-controller="Borclar"
+                   asp-action="Sorgula"
+                   asp-route-durum="Ödenmedi"
+                   class="dashboard-card-link">
+
+                    <div class="main-stat-card warning-card">
+
+                        <div class="main-stat-icon warning-icon">
+                            !
+                        </div>
+
+                        <div class="main-stat-content">
+                            <span class="main-stat-title">
+                                Ödenmemiş Borç
+                            </span>
+
+                            <strong>
+                                @Model.OdenmemisBorcSayisi
+                            </strong>
+
+                            <small>
+                                Tahsilat bekleyen borçlar
+                            </small>
+                        </div>
+
+                        <div class="stat-line warning-line"></div>
+                    </div>
+
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a asp-controller="Borclar"
+                   asp-action="Sorgula"
+                   class="dashboard-card-link">
+
+                    <div class="main-stat-card danger-card">
+
+                        <div class="main-stat-icon danger-icon">
+                            ◷
+                        </div>
+
+                        <div class="main-stat-content">
+                            <span class="main-stat-title">
+                                Gecikmiş Borç
+                            </span>
+
+                            <strong class="money-value">
+                                @(Model.GecikmisBorcTutari.ToString("N2")) TL
+                            </strong>
+
+                            <small>
+                                Vadesi geçmiş kalan borç
+                            </small>
+                        </div>
+
+                        <div class="stat-line danger-line"></div>
+                    </div>
+
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <a asp-controller="Tahsilatlar"
+                   asp-action="Gecmis"
+                   class="dashboard-card-link">
+
+                    <div class="main-stat-card success-card">
+
+                        <div class="main-stat-icon success-icon">
+                            ₺
+                        </div>
+
+                        <div class="main-stat-content">
+                            <span class="main-stat-title">
+                                Bugünkü Tahsilat
+                            </span>
+
+                            <strong class="money-value">
+                                @(Model.BugunkuTahsilatTutari.ToString("N2")) TL
+                            </strong>
+
+                            <small>
+                                Bugün tamamlanan başarılı işlemler
+                            </small>
+                        </div>
+
+                        <div class="stat-line success-line"></div>
+                    </div>
+
+                </a>
+            </div>
+
+        </div>
+
+        <!-- GRAFİKLER -->
+        <div class="row g-3 dashboard-charts">
+
+            <div class="col-xl-6">
+                <div class="dashboard-panel">
+
+                    <div class="dashboard-panel-header">
+                        <h3>
+                            Son 7 Günlük Tahsilat
+                        </h3>
+
+                        <span class="panel-filter">
+                            Son 7 Gün
+                            <span>⌄</span>
+                        </span>
+                    </div>
+
+                    <div class="chart-wrapper chart-bar-wrapper">
+                        <canvas id="sonYediGunGrafigi"></canvas>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="dashboard-panel">
+
+                    <div class="dashboard-panel-header">
+                        <h3>
+                            Borç Durumu Dağılımı
+                        </h3>
+
+                        <span class="panel-filter">
+                            Tüm Borçlar
+                            <span>⌄</span>
+                        </span>
+                    </div>
+
+                    <div class="debt-chart-layout">
+
+                        <div class="debt-chart-wrapper">
+                            <canvas id="borcDurumGrafigi"></canvas>
+                        </div>
+
+                        <div class="debt-legend">
+
+                            @for (var i = 0;
+                                                    i < borcEtiketleri.Count;
+                                                    i++)
+                            {
+                                var sayi =
+                                i < borcSayilari.Count
+                                ? borcSayilari[i]
+                                : 0;
+
+                                var yuzde =
+                                toplamBorcDurumSayisi > 0
+                                ? Math.Round(
+                                sayi * 100m /
+                                toplamBorcDurumSayisi)
+                                : 0;
+
+                                <div class="debt-legend-row">
+
+                                    <div class="debt-legend-name">
+                                        <span class="legend-dot"
+                                              style="background:@BorcRengi(i)">
+                                        </span>
+
+                                        <span>
+                                            @borcEtiketleri[i]
+                                        </span>
+                                    </div>
+
+                                    <div class="debt-legend-values">
+                                        <strong>
+                                            %@yuzde
+                                        </strong>
+
+                                        <small>
+                                            (@sayi)
+                                        </small>
+                                    </div>
+
+                                </div>
+                            }
+
+                            <div class="debt-total-row">
+                                <span>Toplam</span>
+
+                                <strong>
+                                    @toplamBorcDurumSayisi
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SİSTEM ÖZETİ -->
+        <div class="system-summary-panel">
+
+            <div class="system-summary-header">
+                <h3>
+                    Sistem Özeti
+                </h3>
+            </div>
+
+            <div class="system-summary-grid">
+
+                <a asp-controller="Kurumlar"
+                   asp-action="Index"
+                   class="summary-item">
+
+                    <div class="summary-icon institution-icon">
+                        K
+                    </div>
+
+                    <div>
+                        <span>Aktif Kurum</span>
+
+                        <strong>
+                            @Model.AktifKurumSayisi
+                        </strong>
+
+                        <small>
+                            Sistemde aktif kurumlar
+                        </small>
+                    </div>
+
+                </a>
+
+                <a asp-controller="TahsilatUrunleri"
+                   asp-action="Index"
+                   class="summary-item">
+
+                    <div class="summary-icon product-icon">
+                        Ü
+                    </div>
+
+                    <div>
+                        <span>Tahsilat Ürünü</span>
+
+                        <strong>
+                            @Model.TahsilatUrunuSayisi
+                        </strong>
+
+                        <small>
+                            Tanımlı ürün sayısı
+                        </small>
+                    </div>
+
+                </a>
+
+                <a asp-controller="Musteriler"
+                   asp-action="Index"
+                   class="summary-item">
+
+                    <div class="summary-icon customer-icon">
+                        M
+                    </div>
+
+                    <div>
+                        <span>Aktif Müşteri</span>
+
+                        <strong>
+                            @Model.AktifMusteriSayisi
+                        </strong>
+
+                        <small>
+                            Aktif müşteri kayıtları
+                        </small>
+                    </div>
+
+                </a>
+
+                <a asp-controller="Borclar"
+                   asp-action="Sorgula"
+                   class="summary-item">
+
+                    <div class="summary-icon paid-icon">
+                        ✓
+                    </div>
+
+                    <div>
+                        <span>Ödenmiş Borç Sayısı</span>
+
+                        <strong>
+                            @Model.OdenmisBorcSayisi
+                        </strong>
+
+                        <small>
+                            Tamamlanan borç kayıtları
+                        </small>
+                    </div>
+
+                </a>
+
+                <a asp-controller="Tahsilatlar"
+                   asp-action="Gecmis"
+                   class="summary-item">
+
+                    <div class="summary-icon collection-icon">
+                        ↗
+                    </div>
+
+                    <div>
+                        <span>Başarılı Tahsilat Sayısı</span>
+
+                        <strong>
+                            @Model.BasariliTahsilatSayisi
+                        </strong>
+
+                        <small>
+                            İptal edilmemiş tahsilatlar
+                        </small>
+                    </div>
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <!-- KULLANICI PANELİ -->
+        <div class="user-welcome-card">
+
+            <div class="user-welcome-icon">
+                K
+            </div>
+
+            <div>
+                <h3>
+                    Tahsilat İşlemleri
+                </h3>
+
+                <p>
+                    Borçlarınızı görüntüleyebilir, kısmi veya tam ödeme
+                    gerçekleştirebilir ve tahsilat geçmişinizi
+                    inceleyebilirsiniz.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="row g-3 mt-1">
+
+            <div class="col-lg-8">
+                <div class="dashboard-panel">
+
+                    <div class="dashboard-panel-header">
+                        <h3>
+                            Son Tahsilat İşlemlerim
+                        </h3>
+
+                        <a asp-controller="Tahsilatlar"
+                           asp-action="Gecmis"
+                           class="panel-action-link">
+
+                            Tümünü Gör
+                        </a>
+                    </div>
+
+                    @if (Model.SonTahsilatlar == null ||
+                                    !Model.SonTahsilatlar.Any())
+                    {
+                        <div class="empty-dashboard">
+                            <strong>
+                                Henüz tahsilat kaydı bulunmuyor
+                            </strong>
+
+                            <p>
+                                Gerçekleştirdiğiniz ödemeler burada
+                                gösterilecektir.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+
+                            <table class="table
+                                                  dashboard-table
+                                                  align-middle mb-0">
+
+                                <thead>
+                                    <tr>
+                                        <th>İşlem</th>
+                                        <th>Kurum</th>
+                                        <th>Tutar</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var tahsilat
+                                                                in Model.SonTahsilatlar)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    @(tahsilat.IslemNo ?? "-")
+                                                </strong>
+
+                                                <small>
+                                                    @tahsilat.IslemTarihi.ToString("dd.MM.yyyy HH:mm")
+                                                    
+                                                    
+                                                </small>
+                                            </td>
+
+                                            <td>
+                                                <strong>
+                                                    @(tahsilat.Borc?
+                                                                                            .TahsilatUrunu?
+                                                                                            .Kurum?
+                                                                                            .KurumAdi ?? "-")
+                                                                                                         </strong>
+
+                                                <small>
+                                                    @(tahsilat.Borc?
+                                                                                            .TahsilatUrunu?
+                                                                                            .UrunAdi ?? "-")
+                                                                                                        </small>
+                                                                                                    </td>
+
+                                            <td>
+                                                <strong>
+                                                    @(tahsilat.OdenenTutar.ToString("N2")) TL
+                                                                                            
+                                    </strong>
+                                </td>
+
+                                            <td>
+                                    @if (tahsilat.IslemDurumu ==
+                                                                        "Başarılı")
+                                                {
+                                                    <span class="badge
+                                                                                 bg-success">
+                                                        Başarılı
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge
+                                                                                 bg-danger">
+                                                        @tahsilat.IslemDurumu
+                                                    </span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="dashboard-panel">
+
+                    <div class="dashboard-panel-header">
+                        <h3>
+                            Hızlı İşlemler
+                        </h3>
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a asp-controller="Borclar"
+                           asp-action="Borclarim"
+                           class="quick-action">
+
+                            <span class="quick-icon">B</span>
+
+                            <span>
+                                <strong>Borçlarım</strong>
+
+                                <small>
+                                    Borçlarınızı görüntüleyin
+                                </small>
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="Tahsilatlar"
+                           asp-action="Gecmis"
+                           class="quick-action">
+
+                            <span class="quick-icon">G</span>
+
+                            <span>
+                                <strong>Tahsilat Geçmişim</strong>
+
+                                <small>
+                                    Geçmiş işlemlerinizi inceleyin
+                                </small>
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="Account"
+                           asp-action="Profil"
+                           class="quick-action">
+
+                            <span class="quick-icon">P</span>
+
+                            <span>
+                                <strong>Profilim</strong>
+
+                                <small>
+                                    Hesap bilgilerinizi görüntüleyin
+                                </small>
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<style>
+    .dashboard-page {
+        padding-bottom: 32px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+        .dashboard-header h1 {
+            margin: 0 0 7px;
+            color: #102a4c;
+            font-size: 30px;
+            font-weight: 750;
+            letter-spacing: -0.5px;
+        }
+
+        .dashboard-header p {
+            margin: 0;
+            color: #718096;
+            font-size: 14px;
+        }
+
+    .dashboard-date {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border: 1px solid #dce6f0;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #183e6c;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 3px 12px rgba(18, 59, 109, 0.05);
+        white-space: nowrap;
+    }
+
+    .date-icon {
+        color: #8ca5c1;
+        font-size: 13px;
+    }
+
+    .dashboard-main-cards {
+        margin-bottom: 16px;
+    }
+
+    .dashboard-card-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .main-stat-card {
+        position: relative;
+        min-height: 118px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        overflow: hidden;
+        border: 1px solid #dce6f0;
+        border-radius: 13px;
+        background: #ffffff;
+        box-shadow: 0 7px 22px rgba(18, 59, 109, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+        .main-stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #b8cadf;
+            box-shadow: 0 12px 28px rgba(18, 59, 109, 0.12);
+        }
+
+    .primary-stat-card {
+        border-color: transparent;
+        background: linear-gradient( 135deg, #0754ad 0%, #0e72e7 100%);
+        color: #ffffff;
+        box-shadow: 0 12px 27px rgba(4, 84, 174, 0.25);
+    }
+
+        .primary-stat-card:hover {
+            border-color: transparent;
+            box-shadow: 0 16px 32px rgba(4, 84, 174, 0.31);
+        }
+
+    .main-stat-icon {
+        position: relative;
+        z-index: 2;
+        width: 49px;
+        height: 49px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .primary-icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .warning-icon {
+        background: #fff2d5;
+        color: #c47b00;
+    }
+
+    .danger-icon {
+        background: #ffe4e4;
+        color: #e63232;
+    }
+
+    .success-icon {
+        background: #dff6ed;
+        color: #149166;
+    }
+
+    .main-stat-content {
+        position: relative;
+        z-index: 2;
+        min-width: 0;
+    }
+
+    .main-stat-title {
+        display: block;
+        margin-bottom: 5px;
+        color: #485a72;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .main-stat-card strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #102a4c;
+        font-size: 25px;
+        line-height: 1.15;
+        font-weight: 750;
+    }
+
+    .main-stat-card small {
+        display: block;
+        color: #8998ab;
+        font-size: 11px;
+    }
+
+    .primary-stat-card .main-stat-title,
+    .primary-stat-card small {
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .primary-stat-card .primary-value {
+        color: #ffffff;
+        font-size: 24px;
+    }
+
+    .money-value {
+        font-size: 22px !important;
+    }
+
+    .primary-card-shape {
+        position: absolute;
+        right: -25px;
+        bottom: -52px;
+        width: 165px;
+        height: 105px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.09);
+        transform: rotate(-15deg);
+    }
+
+    .stat-line {
+        position: absolute;
+        left: 17px;
+        bottom: 0;
+        width: 64px;
+        height: 3px;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .warning-line {
+        background: #f8bd27;
+    }
+
+    .danger-line {
+        background: #f45b5b;
+    }
+
+    .success-line {
+        background: #31be8c;
+    }
+
+    .dashboard-charts {
+        margin-bottom: 16px;
+    }
+
+    .dashboard-panel,
+    .system-summary-panel {
+        border: 1px solid #dce6f0;
+        border-radius: 13px;
+        background: #ffffff;
+        box-shadow: 0 7px 22px rgba(18, 59, 109, 0.07);
+        overflow: hidden;
+    }
+
+    .dashboard-panel {
+        height: 100%;
+    }
+
+    .dashboard-panel-header,
+    .system-summary-header {
+        min-height: 51px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 14px 17px;
+        border-bottom: 1px solid #e8edf3;
+    }
+
+        .dashboard-panel-header h3,
+        .system-summary-header h3 {
+            margin: 0;
+            color: #172f51;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+    .panel-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 9px;
+        border: 1px solid #dde5ee;
+        border-radius: 6px;
+        color: #708198;
+        background: #ffffff;
+        font-size: 10px;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 240px;
+        padding: 15px 18px 18px;
+    }
+
+    .debt-chart-layout {
+        min-height: 240px;
+        display: grid;
+        grid-template-columns: 45% 55%;
+        align-items: center;
+        gap: 5px;
+        padding: 14px 17px 18px;
+    }
+
+    .debt-chart-wrapper {
+        position: relative;
+        width: 100%;
+        height: 195px;
+    }
+
+    .debt-legend {
+        padding-left: 10px;
+    }
+
+    .debt-legend-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .debt-legend-name {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+        color: #66768c;
+        font-size: 11px;
+    }
+
+        .debt-legend-name span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    .legend-dot {
+        width: 8px;
+        height: 8px;
+        flex-shrink: 0;
+        border-radius: 50%;
+    }
+
+    .debt-legend-values {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: #30445f;
+        font-size: 11px;
+    }
+
+        .debt-legend-values strong {
+            min-width: 30px;
+        }
+
+        .debt-legend-values small {
+            min-width: 25px;
+            color: #9aa7b7;
+        }
+
+    .debt-total-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 11px;
+        color: #4a5d75;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .system-summary-panel {
+        margin-top: 0;
+    }
+
+    .system-summary-header {
+        min-height: 46px;
+        border-bottom: none;
+        padding-bottom: 7px;
+    }
+
+    .system-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        padding: 8px 17px 16px;
+    }
+
+    .summary-item {
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+        color: inherit;
+        background: #ffffff;
+        text-decoration: none;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .summary-item:hover {
+            transform: translateY(-2px);
+            border-color: #b9cce1;
+            color: inherit;
+            box-shadow: 0 7px 18px rgba(18, 59, 109, 0.08);
+        }
+
+    .summary-icon {
+        width: 39px;
+        height: 39px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .institution-icon {
+        background: #e5f0fc;
+        color: #135ea9;
+    }
+
+    .product-icon {
+        background: #e5f6f0;
+        color: #148261;
+    }
+
+    .customer-icon {
+        background: #f0eafd;
+        color: #774bc0;
+    }
+
+    .paid-icon {
+        background: #fff3d9;
+        color: #cf8500;
+    }
+
+    .collection-icon {
+        background: #e4f6ef;
+        color: #16966a;
+    }
+
+    .summary-item span,
+    .summary-item strong,
+    .summary-item small {
+        display: block;
+    }
+
+    .summary-item span {
+        color: #77869a;
+        font-size: 10px;
+    }
+
+    .summary-item strong {
+        margin: 2px 0;
+        color: #153354;
+        font-size: 18px;
+    }
+
+    .summary-item small {
+        color: #9aa7b7;
+        font-size: 9px;
+    }
+
+    .user-welcome-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 17px;
+        padding: 21px;
+        border: 1px solid #dce6f0;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #f4f8fd, #ffffff);
+        box-shadow: 0 7px 22px rgba(18, 59, 109, 0.07);
+    }
+
+    .user-welcome-icon {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #123b6d;
+        color: #ffffff;
+        font-weight: 800;
+    }
+
+    .user-welcome-card h3 {
+        margin: 0 0 5px;
+        color: #153354;
+        font-size: 17px;
+    }
+
+    .user-welcome-card p {
+        margin: 0;
+        color: #728198;
+        font-size: 12px;
+    }
+
+    .panel-action-link {
+        color: #1568c5;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .empty-dashboard {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+        .empty-dashboard strong {
+            color: #233c5a;
+        }
+
+        .empty-dashboard p {
+            margin: 7px 0 0;
+            color: #8b99aa;
+            font-size: 12px;
+        }
+
+    .dashboard-table thead th {
+        padding: 13px 15px;
+        border-bottom: 1px solid #e7edf4;
+        color: #6f7f93;
+        background: #f8fafc;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .dashboard-table tbody td {
+        padding: 14px 15px;
+        border-color: #edf1f5;
+        font-size: 12px;
+    }
+
+    .dashboard-table td small {
+        display: block;
+        margin-top: 3px;
+        color: #8a98aa;
+    }
+
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .quick-action {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px;
+        border: 1px solid #e0e7ef;
+        border-radius: 9px;
+        color: #233b59;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+        .quick-action:hover {
+            border-color: #aec5df;
+            background: #f7faff;
+            color: #233b59;
+            transform: translateX(2px);
+        }
+
+    .quick-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 9px;
+        background: #e7f0fa;
+        color: #154f8c;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .quick-action strong,
+    .quick-action small {
+        display: block;
+    }
+
+    .quick-action strong {
+        margin-bottom: 3px;
+        font-size: 12px;
+    }
+
+    .quick-action small {
+        color: #8795a7;
+        font-size: 10px;
+    }
+
+    @@media (max-width: 1199px) {
+        .system-summary-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 991px) {
+        .debt-chart-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .debt-chart-wrapper {
+            height: 200px;
+        }
+
+        .debt-legend {
+            padding-left: 0;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .dashboard-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+            .dashboard-header h1 {
+                font-size: 24px;
+            }
+
+        .system-summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .main-stat-card {
+            min-height: 105px;
+        }
+
+        .chart-wrapper {
+            height: 235px;
+        }
+    }
+</style>
+
+@section Scripts
+{
+    @if (adminMi)
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            const sonYediGunEtiketleri =
+                @Html.Raw(
+                    JsonSerializer.Serialize(
+                            Model.SonYediGunEtiketleri));
+
+    const sonYediGunTahsilatlari =
+        @Html.Raw(
+                        JsonSerializer.Serialize(
+                                Model.SonYediGunTahsilatlari));
+
+    const borcDurumEtiketleri =
+        @Html.Raw(
+                        JsonSerializer.Serialize(
+                                Model.BorcDurumEtiketleri));
+
+    const borcDurumSayilari =
+        @Html.Raw(
+                        JsonSerializer.Serialize(
+                                Model.BorcDurumSayilari));
+
+    const paraFormati =
+        new Intl.NumberFormat(
+            "tr-TR",
+            {
+                style: "currency",
+                currency: "TRY",
+                maximumFractionDigits: 0
+            });
+
+    const sonYediGunCanvas =
+        document.getElementById(
+            "sonYediGunGrafigi");
+
+    if (sonYediGunCanvas) {
+        new Chart(
+            sonYediGunCanvas,
+            {
+                type: "bar",
+
+                data: {
+                    labels:
+                        sonYediGunEtiketleri,
+
+                    datasets: [
+                        {
+                            data:
+                                sonYediGunTahsilatlari,
+
+                            backgroundColor:
+                                "#2478e7",
+
+                            hoverBackgroundColor:
+                                "#155fbf",
+
+                            borderRadius:
+                                3,
+
+                            borderSkipped:
+                                false,
+
+                            barPercentage:
+                                0.54,
+
+                            categoryPercentage:
+                                0.8
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+                            callbacks: {
+                                label:
+                                    function (context) {
+                                        return paraFormati
+                                            .format(
+                                                context.raw);
+                                    }
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+
+                            border: {
+                                display: false
+                            },
+
+                            ticks: {
+                                color: "#7e8ca0",
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+
+                            border: {
+                                display: false
+                            },
+
+                            grid: {
+                                color:
+                                    "rgba(125, 145, 170, 0.14)"
+                            },
+
+                            ticks: {
+                                color: "#7e8ca0",
+
+                                font: {
+                                    size: 9
+                                },
+
+                                callback:
+                                    function (value) {
+                                        if (value >= 1000) {
+                                            return (
+                                                value / 1000
+                                            ) + "K";
+                                        }
+
+                                        return value;
+                                    }
+                            }
+                        }
+                    }
+                }
+            });
+    }
+
+    const borcDurumCanvas =
+        document.getElementById(
+            "borcDurumGrafigi");
+
+    if (borcDurumCanvas) {
+        new Chart(
+            borcDurumCanvas,
+            {
+                type: "doughnut",
+
+                data: {
+                    labels:
+                        borcDurumEtiketleri,
+
+                    datasets: [
+                        {
+                            data:
+                                borcDurumSayilari,
+
+                               backgroundColor: [
+                                    "#f45b5b", // Ödenmedi - kırmızı
+                                    "#f6b925", // Kısmi Ödendi - sarı
+                                    "#35b889", // Ödendi - yeşil
+                                    "#8091a7"  // Tanımsız durum
+                               ],
+
+                            borderColor:
+                                "#ffffff",
+
+                            borderWidth:
+                                2,
+
+                            hoverOffset:
+                                4
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "58%",
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+                            callbacks: {
+                                label:
+                                    function (context) {
+                                        const values =
+                                            context.dataset.data;
+
+                                        const total =
+                                            values.reduce(
+                                                (a, b) =>
+                                                    a + b,
+                                                0);
+
+                                        const percentage =
+                                            total > 0
+                                                ? Math.round(
+                                                    context.raw *
+                                                    100 /
+                                                    total)
+                                                : 0;
+
+                                        return (
+                                            context.label +
+                                            ": " +
+                                            context.raw +
+                                            " (%" +
+                                            percentage +
+                                            ")"
+                                        );
+                                    }
+                            }
+                        }
+                    }
+                }
+            });
+    }
+</script>
+    }
+}

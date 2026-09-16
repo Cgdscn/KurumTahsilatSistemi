@@ -1,0 +1,134 @@
+﻿@model KurumTahsilatSistemi.ViewModels.SifreDegistirViewModel
+
+@{
+    ViewData["Title"] = "Şifre Değiştir";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6 col-xl-5">
+
+        <div class="mb-4">
+
+            <h2 class="mb-1">
+                Şifre Değiştir
+            </h2>
+
+            <p class="text-muted mb-0">
+                Güvenliğiniz için mevcut parolanızı
+                doğrulayarak yeni parola belirleyiniz.
+            </p>
+
+        </div>
+
+        <div class="card sifre-karti">
+
+            <div class="card-body p-4">
+
+                <form asp-controller="Account"
+                      asp-action="SifreDegistir"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger
+                                validation-summary">
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="MevcutParola"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="MevcutParola"
+                               class="form-control"
+                               autocomplete="current-password" />
+
+                        <span asp-validation-for="MevcutParola"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="YeniParola"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="YeniParola"
+                               class="form-control"
+                               autocomplete="new-password" />
+
+                        <span asp-validation-for="YeniParola"
+                              class="text-danger">
+                        </span>
+
+                        <div class="form-text">
+                            Parola en az 6 karakter olmalı;
+                            büyük harf, küçük harf, rakam ve
+                            özel karakter içermelidir.
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="YeniParolaTekrar"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="YeniParolaTekrar"
+                               class="form-control"
+                               autocomplete="new-password" />
+
+                        <span asp-validation-for="YeniParolaTekrar"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Şifreyi Güncelle
+                        </button>
+
+                        <a asp-controller="Account"
+                           asp-action="Profil"
+                           class="btn btn-secondary">
+                            Vazgeç
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .sifre-karti {
+        border: 1px solid #dce4ee;
+        border-radius: 15px;
+        box-shadow: 0 8px 24px rgba(18, 59, 109, 0.08);
+    }
+
+    .validation-summary:empty {
+        display: none;
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+}

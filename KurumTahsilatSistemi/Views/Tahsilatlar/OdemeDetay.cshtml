@@ -1,0 +1,701 @@
+﻿@model KurumTahsilatSistemi.ViewModels.OdemeDetayViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Detayları";
+
+    var kartOdeme =
+        Model.OdemeKanali == "Kredi Kartı" ||
+        Model.OdemeKanali == "Banka Kartı";
+
+    var hesapOdeme =
+        Model.OdemeKanali == "Vadesiz Hesaptan Ödeme" ||
+        Model.OdemeKanali == "Mobil Bankacılık" ||
+        Model.OdemeKanali == "İnternet Bankacılığı";
+
+    var subeOdeme =
+        Model.OdemeKanali == "Nakit" ||
+        Model.OdemeKanali == "Şube";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-10">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Ödeme Detayları</h2>
+
+            <p class="text-muted mb-0">
+                Seçilen ödeme yöntemine ait bilgileri doldurarak
+                tahsilat işlemini tamamlayınız.
+            </p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4">
+                <div class="card odeme-ozet-karti h-100">
+
+                    <div class="card-header">
+                        İşlem Özeti
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="ozet-bilgi">
+                            <span>Müşteri</span>
+                            <strong>@Model.MusteriAdi</strong>
+                        </div>
+
+                        <div class="ozet-bilgi">
+                            <span>Referans Numarası</span>
+                            <strong>@Model.ReferansNo</strong>
+                        </div>
+
+                        <div class="ozet-bilgi">
+                            <span>Ödeme Yöntemi</span>
+
+                            <div class="odeme-kanali-rozeti">
+                                @Model.OdemeKanali
+                            </div>
+                        </div>
+
+                        <div class="odenecek-tutar">
+                            <span>Kalan Borç Tutarı</span>
+
+                            <strong>
+                                @(Model.KalanBorcTutari.ToString("N2")) TL
+                            </strong>
+                        </div>
+
+                        <div class="guvenlik-bilgisi mt-4">
+                            <div class="guvenlik-simgesi">
+                                ✓
+                            </div>
+
+                            <div>
+                                <strong>Güvenli işlem</strong>
+
+                                <small>
+                                    Girilen ödeme bilgileri tahsilat
+                                    tablosuna kaydedilmez.
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card h-100">
+
+                    <div class="card-header">
+                        @if (kartOdeme)
+                        {
+                            <span>Kart Bilgileri</span>
+                        }
+                        else if (hesapOdeme)
+                        {
+                            <span>Hesap Bilgileri</span>
+                        }
+                        else if (subeOdeme)
+                        {
+                            <span>Şube ve Vezne Bilgileri</span>
+                        }
+                        else
+                        {
+                            <span>Ödeme Bilgileri</span>
+                        }
+                    </div>
+
+                    <div class="card-body">
+
+                        <form asp-controller="Tahsilatlar"
+                              asp-action="OdemeDetay"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" asp-for="BorcId" />
+                            <input type="hidden" asp-for="MusteriAdi" />
+                            <input type="hidden" asp-for="ReferansNo" />
+                            <input type="hidden" asp-for="BorcTutari" />
+                            <input type="hidden" asp-for="DahaOnceOdenenTutar" />
+                            <input type="hidden" asp-for="KalanBorcTutari" />
+                            <input type="hidden" asp-for="OdemeKanali" />
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="alert alert-danger validation-summary">
+                            </div>
+
+                            <div class="card border-primary mb-4">
+
+                                <div class="card-header bg-primary text-white">
+                                    Kısmi Ödeme
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="row g-3">
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">
+                                                Toplam Borç
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   value="@(Model.BorcTutari.ToString("N2")) TL"
+                                                   readonly />
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">
+                                                Daha Önce Ödenen
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   value="@(Model.DahaOnceOdenenTutar.ToString("N2")) TL"
+                                                   readonly />
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">
+                                                Kalan Borç
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control fw-bold"
+                                                   value="@(Model.KalanBorcTutari.ToString("N2")) TL"
+                                                   readonly />
+                                        </div>
+
+                                    </div>
+
+                                    <hr />
+
+                                    <div class="mb-0">
+                                        <label asp-for="OdemeTutari"
+                                               class="form-label">
+                                        </label>
+
+                                        <div class="input-group">
+                                            <input asp-for="OdemeTutari"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0.01"
+                                                   max="@Model.KalanBorcTutari.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+
+                                            <span class="input-group-text">
+                                                TL
+                                            </span>
+                                        </div>
+
+                                        <span asp-validation-for="OdemeTutari"
+                                              class="text-danger">
+                                        </span>
+
+                                        <div class="form-text">
+                                            Kalan borcun tamamını veya daha düşük
+                                            bir tutarı ödeyebilirsiniz.
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            @if (kartOdeme)
+                            {
+                                <div class="alert alert-warning">
+                                    Bu uygulama test amaçlıdır. Gerçek kart
+                                    bilgileri kullanılmamalıdır.
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="KartSahibi"
+                                           class="form-label">
+                                    </label>
+
+                                    <input asp-for="KartSahibi"
+                                           class="form-control"
+                                           placeholder="Kart üzerindeki ad ve soyad" />
+
+                                    <span asp-validation-for="KartSahibi"
+                                          class="text-danger">
+                                    </span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="KartNo"
+                                           class="form-label">
+                                    </label>
+
+                                    <div class="input-group kart-input">
+                                        <span class="input-group-text">
+                                            KART
+                                        </span>
+
+                                        <input asp-for="KartNo"
+                                               id="kartNo"
+                                               class="form-control"
+                                               maxlength="19"
+                                               inputmode="numeric"
+                                               autocomplete="cc-number"
+                                               placeholder="0000 0000 0000 0000" />
+                                    </div>
+
+                                    <span asp-validation-for="KartNo"
+                                          class="text-danger">
+                                    </span>
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="SonKullanmaTarihi"
+                                               class="form-label">
+                                        </label>
+
+                                        <input asp-for="SonKullanmaTarihi"
+                                               id="sonKullanmaTarihi"
+                                               class="form-control"
+                                               maxlength="5"
+                                               inputmode="numeric"
+                                               autocomplete="cc-exp"
+                                               placeholder="AA/YY" />
+
+                                        <span asp-validation-for="SonKullanmaTarihi"
+                                              class="text-danger">
+                                        </span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Cvv"
+                                               class="form-label">
+                                        </label>
+
+                                        <input asp-for="Cvv"
+                                               type="password"
+                                               class="form-control"
+                                               maxlength="4"
+                                               inputmode="numeric"
+                                               autocomplete="cc-csc"
+                                               placeholder="•••" />
+
+                                        <span asp-validation-for="Cvv"
+                                              class="text-danger">
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="kart-onizleme mt-2">
+                                    <div class="kart-ust">
+                                        <span>TEST KARTI</span>
+                                        <span>@Model.OdemeKanali</span>
+                                    </div>
+
+                                    <div class="kart-numara">
+                                        0000 0000 0000 0000
+                                    </div>
+
+                                    <div class="kart-alt">
+                                        <span>KART SAHİBİ</span>
+                                        <span>AA/YY</span>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (hesapOdeme)
+                            {
+                                <div class="hesap-aciklama mb-4">
+                                    <div class="hesap-aciklama-simgesi">
+                                        H
+                                    </div>
+
+                                    <div>
+                                        <strong>Hesaptan ödeme</strong>
+
+                                        <p class="mb-0">
+                                            Borç tutarının tahsil edileceği
+                                            hesap numarasını giriniz.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="HesapNo"
+                                           class="form-label">
+                                    </label>
+
+                                    <input asp-for="HesapNo"
+                                           class="form-control"
+                                           placeholder="Örnek: 1234567890" />
+
+                                    <span asp-validation-for="HesapNo"
+                                          class="text-danger">
+                                    </span>
+
+                                    <div class="form-text">
+                                        Test amacıyla örnek bir hesap numarası
+                                        kullanılabilir.
+                                    </div>
+                                </div>
+                            }
+
+                            @if (subeOdeme)
+                            {
+                                <div class="sube-aciklama mb-4">
+                                    <div class="sube-aciklama-simgesi">
+                                        Ş
+                                    </div>
+
+                                    <div>
+                                        <strong>Şube tahsilatı</strong>
+
+                                        <p class="mb-0">
+                                            Tahsilatın gerçekleştirildiği şube
+                                            veya vezne kodunu giriniz.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="SubeVezneKodu"
+                                           class="form-label">
+                                    </label>
+
+                                    <input asp-for="SubeVezneKodu"
+                                           class="form-control"
+                                           placeholder="Örnek: S001-V03" />
+
+                                    <span asp-validation-for="SubeVezneKodu"
+                                          class="text-danger">
+                                    </span>
+                                </div>
+                            }
+
+                            <div class="odeme-onay-kutusu mt-4">
+                                <div>
+                                    <strong>Tahsilat onayı</strong>
+
+                                    <div class="small text-muted">
+                                        İşlem tamamlandığında girilen tutar kadar
+                                        ödeme alınacak ve dekont oluşturulacaktır.
+                                    </div>
+                                </div>
+
+                                <strong class="onay-tutari"
+                                        id="onayTutari">
+                                    @(Model.OdemeTutari.ToString("N2")) TL
+                                </strong>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+
+                                <button type="submit"
+                                        class="btn btn-success"
+                                        onclick="return confirm('Tahsilat işlemini onaylıyor musunuz?')">
+                                    Ödemeyi Tamamla
+                                </button>
+
+                                <a asp-controller="Tahsilatlar"
+                                   asp-action="OdemeYap"
+                                   asp-route-id="@Model.BorcId"
+                                   class="btn btn-secondary">
+                                    Ödeme Yöntemine Dön
+                                </a>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .validation-summary:empty {
+        display: none;
+    }
+
+    .odeme-ozet-karti {
+        position: sticky;
+        top: 20px;
+    }
+
+    .ozet-bilgi {
+        padding: 13px 0;
+        border-bottom: 1px solid #e7ecf2;
+    }
+
+        .ozet-bilgi span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .ozet-bilgi strong {
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .odeme-kanali-rozeti {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .odenecek-tutar {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #123b6d, #1d5b9e);
+        color: white;
+    }
+
+        .odenecek-tutar span {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 13px;
+        }
+
+        .odenecek-tutar strong {
+            font-size: 25px;
+        }
+
+    .guvenlik-bilgisi {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #cfe8df;
+        border-radius: 11px;
+        background-color: #f1faf7;
+    }
+
+    .guvenlik-simgesi {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #15967d;
+        color: white;
+        font-weight: 800;
+    }
+
+    .guvenlik-bilgisi strong,
+    .guvenlik-bilgisi small {
+        display: block;
+    }
+
+    .guvenlik-bilgisi small {
+        margin-top: 3px;
+        color: #667085;
+        line-height: 1.4;
+    }
+
+    .kart-input .input-group-text {
+        border-color: #cbd5e1;
+        background-color: #f1f5f9;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .kart-onizleme {
+        min-height: 190px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 24px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #0b294d, #1d5b9e);
+        color: white;
+        box-shadow: 0 14px 30px rgba(18, 59, 109, 0.2);
+    }
+
+    .kart-ust,
+    .kart-alt {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .kart-numara {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 3px;
+    }
+
+    .hesap-aciklama,
+    .sube-aciklama {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 17px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+    .hesap-aciklama-simgesi,
+    .sube-aciklama-simgesi {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-weight: 800;
+    }
+
+    .hesap-aciklama p,
+    .sube-aciklama p {
+        margin-top: 3px;
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .odeme-onay-kutusu {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 17px 18px;
+        border: 1px solid #cfe8df;
+        border-radius: 11px;
+        background-color: #f1faf7;
+    }
+
+    .onay-tutari {
+        flex-shrink: 0;
+        color: #116653;
+        font-size: 19px;
+    }
+
+    .form-text {
+        margin-top: 6px;
+        color: #667085;
+        font-size: 12px;
+    }
+
+    @@media (max-width: 767px) {
+        .odeme-ozet-karti {
+            position: static;
+        }
+
+        .odeme-onay-kutusu {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .kart-numara {
+            font-size: 17px;
+            letter-spacing: 2px;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const kartNoInput =
+            document.getElementById("kartNo");
+
+        if (kartNoInput) {
+            kartNoInput.addEventListener(
+                "input",
+                function () {
+                    let value =
+                        this.value
+                            .replace(/\D/g, "")
+                            .substring(0, 16);
+
+                    this.value =
+                        value
+                            .replace(/(.{4})/g, "$1 ")
+                            .trim();
+                });
+        }
+
+        const sonKullanmaInput =
+            document.getElementById(
+                "sonKullanmaTarihi");
+
+        if (sonKullanmaInput) {
+            sonKullanmaInput.addEventListener(
+                "input",
+                function () {
+                    let value =
+                        this.value
+                            .replace(/\D/g, "")
+                            .substring(0, 4);
+
+                    if (value.length > 2) {
+                        value =
+                            value.substring(0, 2) +
+                            "/" +
+                            value.substring(2);
+                    }
+
+                    this.value = value;
+                });
+        }
+
+        const odemeTutariInput =
+            document.getElementById("OdemeTutari");
+
+        const onayTutari =
+            document.getElementById("onayTutari");
+
+        if (odemeTutariInput && onayTutari) {
+            odemeTutariInput.addEventListener(
+                "input",
+                function () {
+                    const sayi =
+                        Number(
+                            this.value
+                                .replace(",", "."));
+
+                    if (Number.isNaN(sayi)) {
+                        onayTutari.textContent =
+                            "0,00 TL";
+
+                        return;
+                    }
+
+                    onayTutari.textContent =
+                        sayi.toLocaleString(
+                            "tr-TR",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }) +
+                        " TL";
+                });
+        }
+    </script>
+}

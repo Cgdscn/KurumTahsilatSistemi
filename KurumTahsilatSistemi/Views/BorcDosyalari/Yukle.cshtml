@@ -1,0 +1,254 @@
+﻿@model KurumTahsilatSistemi.ViewModels.BorcDosyaYukleViewModel
+
+@{
+    ViewData["Title"] = "Borç Dosyası Yükleme";
+}
+
+<div class="mb-4">
+    <h2 class="mb-2">Borç Dosyası Yükleme</h2>
+
+    <p class="text-muted mb-0">
+        Kurum tarafından gönderilen borç kayıtlarını TXT dosyası
+        üzerinden sisteme aktarabilirsiniz.
+    </p>
+</div>
+
+@if (TempData["BasariliMesaj"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["BasariliMesaj"]
+    </div>
+}
+
+@if (TempData["UyariMesaji"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["UyariMesaji"]
+    </div>
+}
+
+@if (TempData["HataMesaji"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["HataMesaji"]
+    </div>
+}
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+        <div class="card h-100">
+
+            <div class="card-header">
+                Dosya Aktarım Bilgileri
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Yukle"
+                      method="post"
+                      enctype="multipart/form-data">
+
+                    <div asp-validation-summary="All"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="KurumId"
+                               class="form-label">
+                        </label>
+
+                        <select asp-for="KurumId"
+                                asp-items="ViewBag.KurumId"
+                                class="form-select">
+
+                            <option value="0">
+                                Kurum seçiniz
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="KurumId"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TahsilatUrunuId"
+                               class="form-label">
+                        </label>
+
+                        <select asp-for="TahsilatUrunuId"
+                                asp-items="ViewBag.TahsilatUrunuId"
+                                class="form-select">
+
+                            <option value="0">
+                                Tahsilat ürünü seçiniz
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="TahsilatUrunuId"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Dosya"
+                               class="form-label">
+                        </label>
+
+                        <div class="upload-area">
+                            <div class="upload-icon">
+                                TXT
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Borç dosyasını seçiniz</strong>
+
+                                <div class="small text-muted mt-1">
+                                    Yalnızca .txt uzantılı dosyalar kabul edilir.
+                                </div>
+                            </div>
+
+                            <input asp-for="Dosya"
+                                   type="file"
+                                   accept=".txt"
+                                   class="form-control" />
+                        </div>
+
+                        <span asp-validation-for="Dosya"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Dosyayı Sisteme Aktar
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card h-100">
+
+            <div class="card-header">
+                TXT Dosya Formatı
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    Her borç kaydı ayrı bir satırda bulunmalı ve alanlar
+                    noktalı virgül ile ayrılmalıdır.
+                </p>
+
+                <div class="format-list mb-4">
+                    <div>
+                        <span>1</span>
+                        Müşteri numarası
+                    </div>
+
+                    <div>
+                        <span>2</span>
+                        Müşteri adı
+                    </div>
+
+                    <div>
+                        <span>3</span>
+                        Borç tutarı
+                    </div>
+
+                    <div>
+                        <span>4</span>
+                        Son ödeme tarihi
+                    </div>
+
+                    <div>
+                        <span>5</span>
+                        Referans numarası
+                    </div>
+                </div>
+
+                <div class="small fw-semibold mb-2">
+                    Örnek dosya içeriği
+                </div>
+
+                <pre>OGR1005;Ali Demir;3000,00;25.07.2026;TAKSIT-005
+OGR1006;Elif Yılmaz;2250,00;30.07.2026;TAKSIT-006</pre>
+
+                <div class="alert alert-info mb-0">
+                    Her referans numarası benzersiz olmalıdır.
+                    Daha önce kullanılan referanslar yeniden eklenemez.
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .upload-area {
+        padding: 24px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        background-color: #f8fafc;
+        text-align: center;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+        .upload-area:hover {
+            border-color: #1d5b9e;
+            background-color: #f2f7fc;
+        }
+
+    .upload-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background-color: #123b6d;
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .format-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .format-list div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #344054;
+        }
+
+        .format-list span {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background-color: #e8f1fb;
+            color: #123b6d;
+            font-size: 13px;
+            font-weight: 700;
+        }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

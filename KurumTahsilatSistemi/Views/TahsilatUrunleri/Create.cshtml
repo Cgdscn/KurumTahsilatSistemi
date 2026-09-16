@@ -1,0 +1,180 @@
+﻿@model KurumTahsilatSistemi.Models.TahsilatUrunu
+
+@{
+    ViewData["Title"] = "Yeni Tahsilat Ürünü";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Yeni Tahsilat Ürünü</h2>
+
+            <p class="text-muted mb-0">
+                Bir kuruma bağlı olarak kullanılacak tahsilat ürününün
+                bilgilerini tanımlayınız.
+            </p>
+        </div>
+
+        <div class="card">
+
+            <div class="card-header d-flex align-items-center gap-3">
+                <div class="urun-form-icon">
+                    TÜ
+                </div>
+
+                <div>
+                    <div>Tahsilat Ürünü Bilgileri</div>
+
+                    <small class="text-muted fw-normal">
+                        Ürün kodu, ürün adı ve bağlı kurum bilgisi girilmelidir.
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Create" method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="UrunKodu"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="UrunKodu"
+                                   class="form-control"
+                                   placeholder="Örnek: OKUL001" />
+
+                            <span asp-validation-for="UrunKodu"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Ürünü sistemde benzersiz olarak tanımlayan
+                                kısa bir kod giriniz.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="UrunAdi"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="UrunAdi"
+                                   class="form-control"
+                                   placeholder="Örnek: Okul Taksidi" />
+
+                            <span asp-validation-for="UrunAdi"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Kullanıcıların ekranlarda göreceği ürün adını
+                                giriniz.
+                            </div>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <label asp-for="KurumId"
+                                   class="form-label">
+                            </label>
+
+                            <select asp-for="KurumId"
+                                    asp-items="ViewBag.KurumId"
+                                    class="form-select">
+
+                                <option value="0">
+                                    Bağlı kurum seçiniz
+                                </option>
+                            </select>
+
+                            <span asp-validation-for="KurumId"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Bu tahsilat ürünü seçilen kuruma bağlı olarak
+                                kullanılacaktır.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="urun-bilgi-kutusu mb-4">
+                        <div class="urun-bilgi-baslik">
+                            Tahsilat ürünü ne işe yarar?
+                        </div>
+
+                        <div class="small text-muted">
+                            Tahsilat ürünü, kuruma ait borçların hangi hizmet
+                            veya ödeme türü kapsamında bulunduğunu belirtir.
+                            Örneğin okul taksidi, su faturası veya site aidatı.
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Tahsilat Ürününü Kaydet
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Listeye Dön
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .urun-form-icon {
+        width: 46px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e6f5f1;
+        color: #117b68;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .urun-bilgi-kutusu {
+        padding: 16px 18px;
+        border: 1px solid #dce4ee;
+        border-left: 4px solid #15967d;
+        border-radius: 10px;
+        background-color: #f7fbfa;
+    }
+
+    .urun-bilgi-baslik {
+        margin-bottom: 5px;
+        color: #116653;
+        font-weight: 700;
+    }
+
+    .form-text {
+        margin-top: 6px;
+        color: #667085;
+        font-size: 12px;
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

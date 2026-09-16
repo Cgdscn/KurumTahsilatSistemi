@@ -1,0 +1,568 @@
+﻿@model KurumTahsilatSistemi.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Sisteme Giriş";
+}
+
+<div class="login-page">
+    <div class="login-container">
+
+        <div class="login-information">
+
+            <div class="login-brand">
+
+                <svg class="login-brand-mark"
+                     viewBox="0 0 64 64"
+                     xmlns="http://www.w3.org/2000/svg"
+                     role="img"
+                     aria-label="Kurum Tahsilat Sistemi logosu">
+
+                    <rect x="3"
+                          y="3"
+                          width="58"
+                          height="58"
+                          rx="17"
+                          fill="#ffffff" />
+
+                    <path d="M32 10L49 16V29C49 40 42 50 32 55C22 50 15 40 15 29V16L32 10Z"
+                          fill="#e7f0fa" />
+
+                    <path d="M22 21V43H28V35L36 43H44L33 32L43 21H35L28 29V21H22Z"
+                          fill="#123b6d" />
+
+                    <circle cx="45"
+                            cy="44"
+                            r="8"
+                            fill="#1677e8" />
+
+                    <path d="M41.5 44L44 46.5L48.5 41.5"
+                          fill="none"
+                          stroke="#ffffff"
+                          stroke-width="2.4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+
+                <div class="login-brand-text">
+                    <strong>Kurum Tahsilat</strong>
+                    <span>Yönetim Sistemi</span>
+                </div>
+
+            </div>
+
+            <span class="login-system-label">
+                GÜVENLİ TAHSİLAT YÖNETİMİ
+            </span>
+
+            <h1>
+                Tahsilat işlemlerinizi güvenli şekilde yönetin
+            </h1>
+
+            <p>
+                Kurum, borç ve tahsilat işlemlerine erişebilmek için
+                yetkili kullanıcı bilgilerinizle sisteme giriş yapınız.
+            </p>
+
+            <div class="login-feature-list">
+
+                <div class="login-feature">
+                    <span>1</span>
+
+                    <div>
+                        <strong>Rol bazlı yetkilendirme</strong>
+
+                        <small>
+                            Admin ve kullanıcı işlemleri farklı erişim
+                            yetkileriyle yönetilir.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="login-feature">
+                    <span>2</span>
+
+                    <div>
+                        <strong>Güvenli oturum yönetimi</strong>
+
+                        <small>
+                            Kullanıcı oturumları ASP.NET Core Identity
+                            altyapısıyla yönetilir.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="login-feature">
+                    <span>3</span>
+
+                    <div>
+                        <strong>Merkezi tahsilat yönetimi</strong>
+
+                        <small>
+                            Borç, ödeme ve dekont işlemleri tek sistem
+                            üzerinden gerçekleştirilir.
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="login-form-section">
+
+            <div class="login-form-header">
+                <h2>Sisteme Giriş</h2>
+
+                <p>
+                    Devam etmek için kullanıcı bilgilerinizi giriniz.
+                </p>
+            </div>
+
+            <form asp-controller="Account"
+                  asp-action="Login"
+                  method="post">
+
+                <input asp-for="ReturnUrl"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger login-validation">
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Email"
+                           class="form-control login-input"
+                           placeholder="ornek@kurumtahsilat.local"
+                           autocomplete="username"
+                           autofocus />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="Password"
+                           class="form-label">
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input asp-for="Password"
+                               class="form-control login-input"
+                               placeholder="Parolanızı giriniz"
+                               autocomplete="current-password"
+                               id="passwordInput" />
+
+                        <button type="button"
+                                class="password-toggle"
+                                id="passwordToggle"
+                                aria-label="Parolayı göster veya gizle">
+                            Göster
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Password"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="form-check mb-4">
+
+                    <input asp-for="BeniHatirla"
+                           class="form-check-input" />
+
+                    <label asp-for="BeniHatirla"
+                           class="form-check-label">
+                    </label>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary login-button">
+                    Giriş Yap
+                </button>
+
+                <hr class="my-4" />
+
+                <div class="text-center">
+
+                    <span class="text-muted">
+                        Henüz hesabınız yok mu?
+                    </span>
+
+                    <br />
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="btn btn-outline-primary mt-3">
+
+                        Hesap Oluştur
+
+                    </a>
+
+                </div>
+
+            </form>
+
+            <div class="login-security-note">
+
+                <div class="login-security-icon">
+                    i
+                </div>
+
+                <div>
+                    <strong>Güvenlik Bilgilendirmesi</strong>
+
+                    <p>
+                        Kullanıcı bilgilerinizi üçüncü kişilerle
+                        paylaşmayınız. İşlemleriniz tamamlandığında
+                        sistemden çıkış yapınız.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .login-page {
+        min-height: calc(100vh - 210px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 0;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 1000px;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        overflow: hidden;
+        border: 1px solid #dce4ee;
+        border-radius: 20px;
+        background-color: white;
+        box-shadow: 0 18px 50px rgba(18, 59, 109, 0.15);
+    }
+
+    .login-information {
+        position: relative;
+        padding: 48px;
+        overflow: hidden;
+        background: linear-gradient(145deg, #071e39, #123b6d);
+        color: white;
+    }
+
+        .login-information::after {
+            position: absolute;
+            right: -80px;
+            bottom: -90px;
+            width: 260px;
+            height: 260px;
+            border: 45px solid rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+            content: "";
+        }
+
+    .login-brand {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 28px;
+        padding: 9px 15px 9px 9px;
+        border: 1px solid rgba(255, 255, 255, 0.17);
+        border-radius: 17px;
+        background-color: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(6px);
+    }
+
+    .login-brand-mark {
+        width: 62px;
+        height: 62px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.2));
+    }
+
+    .login-brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
+
+        .login-brand-text strong {
+            color: white;
+            font-size: 19px;
+            font-weight: 750;
+        }
+
+        .login-brand-text span {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.66);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+    .login-system-label {
+        position: relative;
+        z-index: 1;
+        display: block;
+        margin-bottom: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+
+    .login-information h1 {
+        position: relative;
+        z-index: 1;
+        max-width: 440px;
+        margin-bottom: 17px;
+        color: white;
+        font-size: 31px;
+        line-height: 1.25;
+    }
+
+    .login-information > p {
+        position: relative;
+        z-index: 1;
+        max-width: 440px;
+        margin-bottom: 32px;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .login-feature-list {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .login-feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+        .login-feature > span {
+            width: 31px;
+            height: 31px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 9px;
+            background-color: rgba(255, 255, 255, 0.13);
+            color: white;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .login-feature strong,
+        .login-feature small {
+            display: block;
+        }
+
+        .login-feature strong {
+            margin-bottom: 3px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .login-feature small {
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+    .login-form-section {
+        padding: 48px;
+    }
+
+    .login-form-header {
+        margin-bottom: 28px;
+    }
+
+        .login-form-header h2 {
+            margin-bottom: 7px;
+            color: #1d2939;
+        }
+
+        .login-form-header p {
+            margin-bottom: 0;
+            color: #667085;
+            font-size: 13px;
+        }
+
+    .login-input {
+        min-height: 48px;
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+        .password-wrapper .form-control {
+            padding-right: 78px;
+        }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        padding: 3px 6px;
+        border: none;
+        background: transparent;
+        color: #123b6d;
+        font-size: 11px;
+        font-weight: 700;
+        transform: translateY(-50%);
+    }
+
+        .password-toggle:hover {
+            color: #1677e8;
+        }
+
+    .login-validation:empty {
+        display: none;
+    }
+
+    .login-validation ul {
+        margin-bottom: 18px;
+        padding: 12px 15px 12px 32px;
+        border: 1px solid #f0caca;
+        border-radius: 9px;
+        background-color: #fff6f6;
+        font-size: 13px;
+    }
+
+    .login-button {
+        width: 100%;
+        min-height: 48px;
+        font-weight: 700;
+    }
+
+    .login-security-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        margin-top: 25px;
+        padding: 14px;
+        border: 1px solid #dce4ee;
+        border-radius: 10px;
+        background-color: #f8fafc;
+    }
+
+    .login-security-icon {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .login-security-note strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #1d2939;
+        font-size: 12px;
+    }
+
+    .login-security-note p {
+        margin: 0;
+        color: #667085;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    @@media (max-width: 850px) {
+        .login-container {
+            max-width: 570px;
+            grid-template-columns: 1fr;
+        }
+
+        .login-information {
+            padding: 35px;
+        }
+
+        .login-feature-list {
+            display: none;
+        }
+
+        .login-information > p {
+            margin-bottom: 0;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .login-information,
+        .login-form-section {
+            padding: 28px 22px;
+        }
+
+            .login-information h1 {
+                font-size: 25px;
+            }
+
+        .login-brand-mark {
+            width: 51px;
+            height: 51px;
+        }
+
+        .login-brand-text strong {
+            font-size: 16px;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput =
+                document.getElementById("passwordInput");
+
+            const passwordToggle =
+                document.getElementById("passwordToggle");
+
+            if (!passwordInput || !passwordToggle) {
+                return;
+            }
+
+            passwordToggle.addEventListener("click", function () {
+                const parolaGizliMi =
+                    passwordInput.type === "password";
+
+                passwordInput.type =
+                    parolaGizliMi ? "text" : "password";
+
+                passwordToggle.textContent =
+                    parolaGizliMi ? "Gizle" : "Göster";
+            });
+        });
+    </script>
+}

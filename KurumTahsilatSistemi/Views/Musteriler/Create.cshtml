@@ -1,0 +1,157 @@
+﻿@model KurumTahsilatSistemi.Models.Musteri
+
+@{
+    ViewData["Title"] = "Yeni Müşteri";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Yeni Müşteri Oluştur</h2>
+
+            <p class="text-muted mb-0">
+                Tahsilat sisteminde kullanılacak müşteri bilgilerini giriniz.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Müşteri Bilgileri
+            </div>
+
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MusteriNo"
+                                   class="form-label"></label>
+
+                            <input asp-for="MusteriNo"
+                                   class="form-control"
+                                   placeholder="Örnek: MUS1001" />
+
+                            <span asp-validation-for="MusteriNo"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="AdSoyad"
+                                   class="form-label"></label>
+
+                            <input asp-for="AdSoyad"
+                                   class="form-control"
+                                   placeholder="Ad soyad veya kurum unvanı" />
+
+                            <span asp-validation-for="AdSoyad"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Tckn"
+                                   class="form-label"></label>
+
+                            <input asp-for="Tckn"
+                                   class="form-control"
+                                   maxlength="11"
+                                   inputmode="numeric"
+                                   placeholder="11 haneli T.C. kimlik numarası" />
+
+                            <span asp-validation-for="Tckn"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="VergiNo"
+                                   class="form-label"></label>
+
+                            <input asp-for="VergiNo"
+                                   class="form-control"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   placeholder="Kurumsal müşteriler için" />
+
+                            <span asp-validation-for="VergiNo"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email"
+                                   class="form-label"></label>
+
+                            <input asp-for="Email"
+                                   class="form-control"
+                                   placeholder="ornek@email.com" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Telefon"
+                                   class="form-label"></label>
+
+                            <input asp-for="Telefon"
+                                   class="form-control"
+                                   placeholder="05xx xxx xx xx" />
+
+                            <span asp-validation-for="Telefon"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label asp-for="Adres"
+                                   class="form-label"></label>
+
+                            <textarea asp-for="Adres"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Müşteri adresi"></textarea>
+
+                            <span asp-validation-for="Adres"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <div class="form-check form-switch">
+                                <input asp-for="AktifMi"
+                                       class="form-check-input"
+                                       role="switch" />
+
+                                <label asp-for="AktifMi"
+                                       class="form-check-label"></label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Müşteriyi Kaydet
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Listeye Dön
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

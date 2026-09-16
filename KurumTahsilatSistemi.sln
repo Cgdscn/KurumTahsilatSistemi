@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KurumTahsilatSistemi", "KurumTahsilatSistemi\KurumTahsilatSistemi.csproj", "{68ECF99C-1FEF-4B5D-8350-7B5ED2F7EF2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KurumTahsilatSistemi.Tests", "KurumTahsilatSistemi.Tests\KurumTahsilatSistemi.Tests.csproj", "{AE1B9DC5-64D8-4FCF-AE3D-6ED69AEF069B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68ECF99C-1FEF-4B5D-8350-7B5ED2F7EF2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68ECF99C-1FEF-4B5D-8350-7B5ED2F7EF2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68ECF99C-1FEF-4B5D-8350-7B5ED2F7EF2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68ECF99C-1FEF-4B5D-8350-7B5ED2F7EF2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE1B9DC5-64D8-4FCF-AE3D-6ED69AEF069B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE1B9DC5-64D8-4FCF-AE3D-6ED69AEF069B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE1B9DC5-64D8-4FCF-AE3D-6ED69AEF069B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE1B9DC5-64D8-4FCF-AE3D-6ED69AEF069B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40C4D072-ADAC-4B71-B147-0D477B77C013}
+	EndGlobalSection
+EndGlobal

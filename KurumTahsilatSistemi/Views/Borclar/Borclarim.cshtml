@@ -1,0 +1,203 @@
+﻿@model IEnumerable<KurumTahsilatSistemi.Models.Borc>
+
+@{
+    ViewData["Title"] = "Borçlarım";
+
+    var bugun = DateTime.Today;
+
+    var gecikmisBorclar = Model
+        .Where(x =>
+            x.Durum != "Ödendi" &&
+            x.SonOdemeTarihi.Date < bugun)
+        .ToList();
+
+    var gecikmisToplam = gecikmisBorclar
+        .Sum(x => x.KalanTutar);
+}
+
+<h2 class="mb-4">Borçlarım</h2>
+
+@if (gecikmisBorclar.Any())
+{
+    <div class="alert alert-danger d-flex
+                    justify-content-between
+                    align-items-center
+                    flex-wrap gap-3">
+
+        <div>
+            <strong>
+                Gecikmiş borcunuz bulunmaktadır.
+            </strong>
+
+            <div class="small mt-1">
+                @gecikmisBorclar.Count adet borcun
+                son ödeme tarihi geçmiştir.
+            </div>
+        </div>
+
+        <div class="text-end">
+            <div class="small">
+                Gecikmiş Toplam Borç
+            </div>
+
+            <strong class="fs-5">
+                @(gecikmisToplam.ToString("N2")) ₺
+            </strong>
+        </div>
+
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-success">
+        Borcunuz bulunmamaktadır.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>Kurum</th>
+                    <th>Ürün</th>
+                    <th>Toplam Borç</th>
+                    <th>Ödenen</th>
+                    <th>Kalan</th>
+                    <th>Son Ödeme</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var borc in Model)
+                {
+                    var gecikmisMi =
+                    borc.Durum != "Ödendi" &&
+                    borc.SonOdemeTarihi.Date < bugun;
+
+                    var gecikenGunSayisi =
+                    gecikmisMi
+                    ? (bugun - borc.SonOdemeTarihi.Date).Days
+                    : 0;
+
+                    <tr>
+
+                        <td>
+                            @(borc.TahsilatUrunu?.Kurum?.KurumAdi
+                                                ?? "-")
+                                                   </td>
+
+                        <td>
+                            @(borc.TahsilatUrunu?.UrunAdi
+                                                ?? "-")
+                </td>
+
+                        <td>
+                            @(borc.BorcTutari.ToString("N2")) ₺
+                        </td>
+
+                        <td>
+                            @(borc.OdenenTutar.ToString("N2")) ₺
+                        </td>
+
+                        <td class="fw-semibold">
+                            @(borc.KalanTutar.ToString("N2")) ₺
+                        </td>
+
+                        <td>
+                            <span class="@(gecikmisMi
+                                                                  ? "text-danger fw-bold"
+                                                                  : "")">
+
+                        @(borc.SonOdemeTarihi.ToString("dd.MM.yyyy"))
+                    </span>
+
+                    @if (gecikmisMi)
+                            {
+                                <div class="small text-danger mt-1">
+                                    @gecikenGunSayisi gün gecikti
+                                </div>
+                            }
+                        </td>
+
+                        <td>
+                            @if (borc.Durum == "Ödendi")
+                            {
+                                <span class="badge bg-success">
+                                    Ödendi
+                                </span>
+                            }
+                            else if (gecikmisMi &&
+                            borc.Durum == "Kısmi Ödendi")
+                            {
+                                <span class="badge bg-danger">
+                                    Gecikmiş - Kısmi Ödendi
+                                </span>
+                            }
+                            else if (gecikmisMi)
+                            {
+                                <span class="badge bg-danger">
+                                    Gecikmiş
+                                </span>
+                            }
+                            else if (borc.Durum == "Kısmi Ödendi")
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Kısmi Ödendi
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Ödenmedi
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (borc.Durum != "Ödendi")
+                            {
+                                <a asp-controller="Tahsilatlar"
+                                   asp-action="OdemeYap"
+                                   asp-route-id="@borc.Id"
+                                   class="btn @(gecikmisMi
+                                                                          ? "btn-danger"
+                                                                          : "btn-primary") btn-sm">
+
+                        @if (gecikmisMi)
+                                    {
+                                        <text>Gecikmiş Borcu Öde</text>
+                                    }
+                                    else if (borc.Durum == "Kısmi Ödendi")
+                                    {
+                                        <text>Kalanı Öde</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Öde</text>
+                                    }
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">
+                                    Tamamlandı
+                                </span>
+                            }
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+}

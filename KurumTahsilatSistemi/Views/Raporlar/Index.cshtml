@@ -1,0 +1,166 @@
+﻿@{
+    ViewData["Title"] = "Excel Raporları";
+}
+
+<div class="mb-4">
+    <h2 class="mb-1">Excel Raporları</h2>
+
+    <p class="text-muted mb-0">
+        Sistem kayıtlarını Excel formatında
+        dışa aktarabilirsiniz.
+    </p>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-6">
+        <div class="card rapor-karti h-100">
+            <div class="card-body">
+
+                <div class="rapor-simge">
+                    T
+                </div>
+
+                <h5>Tahsilat Raporu</h5>
+
+                <p class="text-muted">
+                    Tahsilat işlemlerini tarih aralığına
+                    göre Excel dosyası olarak indirin.
+                </p>
+
+                <form asp-controller="Raporlar"
+                      asp-action="TahsilatlarExcel"
+                      method="get">
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Başlangıç Tarihi
+                            </label>
+
+                            <input type="date"
+                                   name="baslangicTarihi"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Bitiş Tarihi
+                            </label>
+
+                            <input type="date"
+                                   name="bitisTarihi"
+                                   class="form-control" />
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Excel İndir
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card rapor-karti h-100">
+            <div class="card-body">
+
+                <div class="rapor-simge">
+                    B
+                </div>
+
+                <h5>Borç Raporu</h5>
+
+                <p class="text-muted">
+                    Toplam, ödenen, kalan ve gecikmiş
+                    borç bilgilerini dışa aktarın.
+                </p>
+
+                <a asp-controller="Raporlar"
+                   asp-action="BorclarExcel"
+                   class="btn btn-success">
+                    Excel İndir
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card rapor-karti h-100">
+            <div class="card-body">
+
+                <div class="rapor-simge">
+                    M
+                </div>
+
+                <h5>Müşteri Raporu</h5>
+
+                <p class="text-muted">
+                    Aktif ve pasif müşteri bilgilerini
+                    Excel dosyası olarak indirin.
+                </p>
+
+                <a asp-controller="Raporlar"
+                   asp-action="MusterilerExcel"
+                   class="btn btn-success">
+                    Excel İndir
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card rapor-karti h-100">
+            <div class="card-body">
+
+                <div class="rapor-simge">
+                    L
+                </div>
+
+                <h5>İşlem Logu Raporu</h5>
+
+                <p class="text-muted">
+                    Audit log kayıtlarını kullanıcı,
+                    işlem ve IP bilgileriyle dışa aktarın.
+                </p>
+
+                <a asp-controller="Raporlar"
+                   asp-action="AuditLogExcel"
+                   class="btn btn-success">
+                    Excel İndir
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .rapor-karti {
+        border: 1px solid #dce4ee;
+        border-radius: 14px;
+        box-shadow: 0 8px 24px
+            rgba(18, 59, 109, 0.08);
+    }
+
+    .rapor-simge {
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        border-radius: 14px;
+        background-color: #e5f6f1;
+        color: #116653;
+        font-size: 17px;
+        font-weight: 800;
+    }
+</style>

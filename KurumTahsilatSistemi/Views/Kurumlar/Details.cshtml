@@ -1,0 +1,401 @@
+﻿@model KurumTahsilatSistemi.Models.Kurum
+
+@{
+    ViewData["Title"] = "Kurum Detayı";
+
+    var kurumHarfi =
+        string.IsNullOrWhiteSpace(Model.KurumAdi)
+        ? "K"
+        : Model.KurumAdi.Substring(0, 1).ToUpper();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center
+                    gap-3 mb-4">
+
+            <div>
+                <h2 class="mb-2">Kurum Detayı</h2>
+
+                <p class="text-muted mb-0">
+                    Kuruma ait tanımlı bilgiler görüntülenmektedir.
+                </p>
+            </div>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Kurum Listesine Dön
+            </a>
+        </div>
+
+        <div class="card kurum-detay-karti">
+
+            <div class="kurum-detay-ust">
+
+                <div class="kurum-baslik-alani">
+
+                    <div class="kurum-buyuk-avatar">
+                        @kurumHarfi
+                    </div>
+
+                    <div>
+                        <h3 class="mb-1">
+                            @Model.KurumAdi
+                        </h3>
+
+                        <div class="kurum-kod-etiketi">
+                            @Model.KurumKodu
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+                    @if (Model.AktifMi)
+                    {
+                        <span class="kurum-durum aktif">
+                            Aktif Kurum
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="kurum-durum pasif">
+                            Pasif Kurum
+                        </span>
+                    }
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="detay-bolum">
+
+                    <div class="detay-bolum-baslik">
+                        Temel Kurum Bilgileri
+                    </div>
+
+                    <div class="detay-grid">
+
+                        <div class="detay-alani">
+                            <span>Kayıt Numarası</span>
+
+                            <strong>
+                                @Model.Id
+                            </strong>
+                        </div>
+
+                        <div class="detay-alani">
+                            <span>Kurum Kodu</span>
+
+                            <strong>
+                                @Model.KurumKodu
+                            </strong>
+                        </div>
+
+                        <div class="detay-alani">
+                            <span>Kurum Adı</span>
+
+                            <strong>
+                                @Model.KurumAdi
+                            </strong>
+                        </div>
+
+                        <div class="detay-alani">
+                            <span>Kurum Durumu</span>
+
+                            <strong>
+                                @(Model.AktifMi ? "Aktif" : "Pasif")
+                            </strong>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="detay-bolum">
+
+                    <div class="detay-bolum-baslik">
+                        Hesap Bilgileri
+                    </div>
+
+                    <div class="hesap-bilgi-kutusu">
+
+                        <div class="hesap-simgesi">
+                            H
+                        </div>
+
+                        <div>
+                            <span>Kurum Hesap Numarası</span>
+
+                            @if (string.IsNullOrWhiteSpace(Model.HesapNo))
+                            {
+                                <strong class="text-muted">
+                                    Hesap numarası tanımlanmamış
+                                </strong>
+                            }
+                            else
+                            {
+                                <strong>
+                                    @Model.HesapNo
+                                </strong>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="durum-aciklama-kutusu">
+
+                    @if (Model.AktifMi)
+                    {
+                        <div class="durum-aciklama-simgesi aktif-simge">
+                            ✓
+                        </div>
+
+                        <div>
+                            <strong>Kurum kullanıma açık</strong>
+
+                            <p class="mb-0">
+                                Bu kurum tahsilat ürünü tanımlama ve borç
+                                dosyası yükleme işlemlerinde kullanılabilir.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="durum-aciklama-simgesi pasif-simge">
+                            !
+                        </div>
+
+                        <div>
+                            <strong>Kurum kullanıma kapalı</strong>
+
+                            <p class="mb-0">
+                                Bu kurum borç dosyası yükleme ekranındaki
+                                aktif kurum listesinde gösterilmez.
+                            </p>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary">
+                        Kurumu Düzenle
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-danger">
+                        Kurumu Sil
+                    </a>
+
+                    <a asp-controller="TahsilatUrunleri"
+                       asp-action="Index"
+                       class="btn btn-outline-dark">
+                        Tahsilat Ürünlerini Görüntüle
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .kurum-detay-karti {
+        overflow: hidden;
+    }
+
+    .kurum-detay-ust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 26px 28px;
+        background: linear-gradient(135deg, #0b294d, #123b6d);
+        color: white;
+    }
+
+    .kurum-baslik-alani {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .kurum-buyuk-avatar {
+        width: 62px;
+        height: 62px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 17px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .kurum-detay-ust h3 {
+        color: white;
+    }
+
+    .kurum-kod-etiketi {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background-color: rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .kurum-durum {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 13px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+        .kurum-durum.aktif {
+            background-color: #ddf5ed;
+            color: #116653;
+        }
+
+        .kurum-durum.pasif {
+            background-color: #edf0f4;
+            color: #4b5565;
+        }
+
+    .detay-bolum {
+        padding: 4px 0 23px;
+        margin-bottom: 23px;
+        border-bottom: 1px solid #e6ebf2;
+    }
+
+    .detay-bolum-baslik {
+        margin-bottom: 17px;
+        color: #123b6d;
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .detay-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 30px;
+    }
+
+    .detay-alani {
+        padding: 15px 17px;
+        border: 1px solid #e1e7ef;
+        border-radius: 10px;
+        background-color: #f8fafc;
+    }
+
+        .detay-alani span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .detay-alani strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .hesap-bilgi-kutusu {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+    .hesap-simgesi {
+        width: 45px;
+        height: 45px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-weight: 800;
+    }
+
+    .hesap-bilgi-kutusu span,
+    .hesap-bilgi-kutusu strong {
+        display: block;
+    }
+
+    .hesap-bilgi-kutusu span {
+        margin-bottom: 4px;
+        color: #667085;
+        font-size: 12px;
+    }
+
+    .durum-aciklama-kutusu {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 18px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+    .durum-aciklama-simgesi {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        color: white;
+        font-weight: 800;
+    }
+
+    .aktif-simge {
+        background-color: #15967d;
+    }
+
+    .pasif-simge {
+        background-color: #667085;
+    }
+
+    .durum-aciklama-kutusu p {
+        margin-top: 4px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    @@media (max-width: 767px) {
+        .kurum-detay-ust {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .detay-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

@@ -1,0 +1,394 @@
+﻿@model KurumTahsilatSistemi.Models.Musteri
+
+@{
+    ViewData["Title"] = "Müşteri Düzenle";
+
+    var musteriHarfi =
+        string.IsNullOrWhiteSpace(Model.AdSoyad)
+            ? "M"
+            : Model.AdSoyad.Substring(0, 1).ToUpper();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center
+                    gap-3 mb-4">
+
+            <div>
+                <h2 class="mb-2">Müşteri Düzenle</h2>
+
+                <p class="text-muted mb-0">
+                    Kayıtlı müşteri bilgilerini güncelleyebilirsiniz.
+                </p>
+            </div>
+
+            <div class="musteri-kayit-etiketi">
+                Kayıt No: @Model.Id
+            </div>
+        </div>
+
+        <div class="card">
+
+            <div class="card-header d-flex align-items-center gap-3">
+
+                <div class="musteri-duzenle-avatar">
+                    @musteriHarfi
+                </div>
+
+                <div>
+                    <div>Müşteri Bilgileri</div>
+
+                    <small class="text-muted fw-normal">
+                        @Model.AdSoyad
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Edit"
+                      asp-route-id="@Model.Id"
+                      method="post">
+
+                    <input type="hidden"
+                           asp-for="Id" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="form-bolum">
+
+                        <div class="form-bolum-baslik">
+                            Temel Bilgiler
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MusteriNo"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="MusteriNo"
+                                       class="form-control" />
+
+                                <span asp-validation-for="MusteriNo"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AdSoyad"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="AdSoyad"
+                                       class="form-control" />
+
+                                <span asp-validation-for="AdSoyad"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-bolum">
+
+                        <div class="form-bolum-baslik">
+                            Kimlik Bilgileri
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Tckn"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Tckn"
+                                       class="form-control"
+                                       maxlength="11"
+                                       inputmode="numeric" />
+
+                                <span asp-validation-for="Tckn"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="VergiNo"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="VergiNo"
+                                       class="form-control"
+                                       maxlength="10"
+                                       inputmode="numeric" />
+
+                                <span asp-validation-for="VergiNo"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-bolum">
+
+                        <div class="form-bolum-baslik">
+                            İletişim Bilgileri
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Email"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Email"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Telefon"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Telefon"
+                                       class="form-control" />
+
+                                <span asp-validation-for="Telefon"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="Adres"
+                                       class="form-label">
+                                </label>
+
+                                <textarea asp-for="Adres"
+                                          class="form-control"
+                                          rows="3"></textarea>
+
+                                <span asp-validation-for="Adres"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="musteri-durum-kutusu mb-4">
+
+                        <div>
+                            <div class="fw-semibold mb-1">
+                                Müşteri Durumu
+                            </div>
+
+                            <div class="small text-muted">
+                                Müşteriyi aktif veya pasif olarak
+                                işaretleyebilirsiniz.
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch">
+                            <input asp-for="AktifMi"
+                                   class="form-check-input"
+                                   role="switch"
+                                   id="aktifMiSwitch" />
+
+                            <label for="aktifMiSwitch"
+                                   id="aktifMiYazi"
+                                   class="form-check-label fw-semibold">
+                                @(Model.AktifMi ? "Aktif" : "Pasif")
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <div class="musteri-guncelleme-notu mb-4">
+
+                        <div class="bilgi-simgesi">
+                            i
+                        </div>
+
+                        <div>
+                            <strong>Bilgilendirme</strong>
+
+                            <div class="small text-muted mt-1">
+                                Müşteri numarası, T.C. kimlik numarası ve
+                                vergi numarası diğer kayıtlarla aynı olamaz.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Değişiklikleri Kaydet
+                        </button>
+
+                        <a asp-action="Details"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-outline-dark">
+                            Müşteri Detayı
+                        </a>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Listeye Dön
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .musteri-kayit-etiketi {
+        padding: 8px 13px;
+        border: 1px solid #dce4ee;
+        border-radius: 8px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .musteri-duzenle-avatar {
+        width: 46px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .form-bolum {
+        padding-bottom: 20px;
+        margin-bottom: 22px;
+        border-bottom: 1px solid #e6ebf2;
+    }
+
+    .form-bolum-baslik {
+        margin-bottom: 16px;
+        color: #123b6d;
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .musteri-durum-kutusu {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+        .musteri-durum-kutusu .form-check-input {
+            width: 48px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+            .musteri-durum-kutusu .form-check-input:checked {
+                border-color: #15967d;
+                background-color: #15967d;
+            }
+
+    .musteri-guncelleme-notu {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 16px 18px;
+        border: 1px solid #cddff1;
+        border-left: 4px solid #1d5b9e;
+        border-radius: 10px;
+        background-color: #f5f9fd;
+    }
+
+    .bilgi-simgesi {
+        width: 31px;
+        height: 31px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #123b6d;
+        color: white;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 576px) {
+        .musteri-durum-kutusu {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const aktifMiSwitch =
+                document.getElementById("aktifMiSwitch");
+
+            const aktifMiYazi =
+                document.getElementById("aktifMiYazi");
+
+            function durumYazisiniGuncelle() {
+                if (!aktifMiSwitch || !aktifMiYazi) {
+                    return;
+                }
+
+                if (aktifMiSwitch.checked) {
+                    aktifMiYazi.textContent = "Aktif";
+                    aktifMiYazi.classList.remove("text-secondary");
+                    aktifMiYazi.classList.add("text-success");
+                } else {
+                    aktifMiYazi.textContent = "Pasif";
+                    aktifMiYazi.classList.remove("text-success");
+                    aktifMiYazi.classList.add("text-secondary");
+                }
+            }
+
+            durumYazisiniGuncelle();
+
+            aktifMiSwitch.addEventListener(
+                "change",
+                durumYazisiniGuncelle
+            );
+        });
+    </script>
+}

@@ -1,0 +1,433 @@
+﻿@model KurumTahsilatSistemi.Models.TahsilatUrunu
+
+@{
+    ViewData["Title"] = "Tahsilat Ürünü Detayı";
+
+    var urunHarfi =
+        string.IsNullOrWhiteSpace(Model.UrunAdi)
+        ? "T"
+        : Model.UrunAdi.Substring(0, 1).ToUpper();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center
+                    gap-3 mb-4">
+
+            <div>
+                <h2 class="mb-2">Tahsilat Ürünü Detayı</h2>
+
+                <p class="text-muted mb-0">
+                    Tahsilat ürününe ve bağlı kuruma ait bilgiler
+                    görüntülenmektedir.
+                </p>
+            </div>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Ürün Listesine Dön
+            </a>
+        </div>
+
+        <div class="card urun-detay-karti">
+
+            <div class="urun-detay-ust">
+
+                <div class="urun-baslik-alani">
+
+                    <div class="urun-buyuk-avatar">
+                        @urunHarfi
+                    </div>
+
+                    <div>
+                        <h3 class="mb-1">
+                            @Model.UrunAdi
+                        </h3>
+
+                        <span class="urun-kod-etiketi">
+                            @Model.UrunKodu
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="urun-kayit-etiketi">
+                    Kayıt No: @Model.Id
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="urun-detay-bolum">
+
+                    <div class="urun-detay-bolum-baslik">
+                        Ürün Bilgileri
+                    </div>
+
+                    <div class="urun-detay-grid">
+
+                        <div class="urun-detay-alani">
+                            <span>Kayıt Numarası</span>
+
+                            <strong>
+                                @Model.Id
+                            </strong>
+                        </div>
+
+                        <div class="urun-detay-alani">
+                            <span>Ürün Kodu</span>
+
+                            <strong>
+                                @Model.UrunKodu
+                            </strong>
+                        </div>
+
+                        <div class="urun-detay-alani">
+                            <span>Ürün Adı</span>
+
+                            <strong>
+                                @Model.UrunAdi
+                            </strong>
+                        </div>
+
+                        <div class="urun-detay-alani">
+                            <span>Bağlı Kurum Numarası</span>
+
+                            <strong>
+                                @Model.KurumId
+                            </strong>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="urun-detay-bolum">
+
+                    <div class="urun-detay-bolum-baslik">
+                        Bağlı Kurum Bilgileri
+                    </div>
+
+                    @if (Model.Kurum != null)
+                    {
+                        <div class="bagli-kurum-karti">
+
+                            <div class="bagli-kurum-avatar">
+                                @{
+                                    var kurumHarfi =
+                                    string.IsNullOrWhiteSpace(Model.Kurum.KurumAdi)
+                                    ? "K"
+                                    : Model.Kurum.KurumAdi
+                                    .Substring(0, 1)
+                                    .ToUpper();
+                                }
+
+                                @kurumHarfi
+                            </div>
+
+                            <div class="bagli-kurum-bilgileri">
+
+                                <div>
+                                    <span>Kurum Adı</span>
+
+                                    <strong>
+                                        @Model.Kurum.KurumAdi
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>Kurum Kodu</span>
+
+                                    <strong>
+                                        @Model.Kurum.KurumKodu
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>Hesap Numarası</span>
+
+                                    @if (string.IsNullOrWhiteSpace(
+                                                                    Model.Kurum.HesapNo))
+                                    {
+                                        <strong class="text-muted">
+                                            Tanımlanmamış
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <strong>
+                                            @Model.Kurum.HesapNo
+                                        </strong>
+                                    }
+                                </div>
+
+                                <div>
+                                    <span>Kurum Durumu</span>
+
+                                    @if (Model.Kurum.AktifMi)
+                                    {
+                                        <span class="badge bg-success">
+                                            Aktif
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Pasif
+                                        </span>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger mb-0">
+                            Bu tahsilat ürününe bağlı kurum bilgisi bulunamadı.
+                        </div>
+                    }
+
+                </div>
+
+                <div class="urun-kullanim-kutusu">
+
+                    <div class="urun-kullanim-simgesi">
+                        i
+                    </div>
+
+                    <div>
+                        <strong>Tahsilat ürünü kullanımı</strong>
+
+                        <p class="mb-0">
+                            Bu ürün, borç dosyası aktarımı sırasında seçilerek
+                            yüklenen borç kayıtlarının ilgili kurum ve hizmet
+                            türüyle ilişkilendirilmesini sağlar.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary">
+                        Ürünü Düzenle
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-danger">
+                        Ürünü Sil
+                    </a>
+
+                    @if (Model.Kurum != null)
+                    {
+                        <a asp-controller="Kurumlar"
+                           asp-action="Details"
+                           asp-route-id="@Model.KurumId"
+                           class="btn btn-outline-dark">
+                            Bağlı Kurumu Görüntüle
+                        </a>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .urun-detay-karti {
+        overflow: hidden;
+    }
+
+    .urun-detay-ust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 26px 28px;
+        background: linear-gradient(135deg, #116653, #15967d);
+        color: white;
+    }
+
+    .urun-baslik-alani {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .urun-buyuk-avatar {
+        width: 62px;
+        height: 62px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 17px;
+        background-color: white;
+        color: #116653;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .urun-detay-ust h3 {
+        color: white;
+    }
+
+    .urun-kod-etiketi {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background-color: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .urun-kayit-etiketi {
+        padding: 8px 12px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.14);
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .urun-detay-bolum {
+        padding: 4px 0 23px;
+        margin-bottom: 23px;
+        border-bottom: 1px solid #e6ebf2;
+    }
+
+    .urun-detay-bolum-baslik {
+        margin-bottom: 17px;
+        color: #116653;
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .urun-detay-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .urun-detay-alani {
+        padding: 15px 17px;
+        border: 1px solid #e1e7ef;
+        border-radius: 10px;
+        background-color: #f8fafc;
+    }
+
+        .urun-detay-alani span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .urun-detay-alani strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .bagli-kurum-karti {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 20px;
+        border: 1px solid #cfe8df;
+        border-radius: 12px;
+        background-color: #f5fbf9;
+    }
+
+    .bagli-kurum-avatar {
+        width: 52px;
+        height: 52px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 14px;
+        background-color: #15967d;
+        color: white;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .bagli-kurum-bilgileri {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px 25px;
+    }
+
+        .bagli-kurum-bilgileri span {
+            display: block;
+            margin-bottom: 4px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .bagli-kurum-bilgileri strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .urun-kullanim-kutusu {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 18px;
+        border: 1px solid #cfe8df;
+        border-left: 4px solid #15967d;
+        border-radius: 10px;
+        background-color: #f4fbf9;
+    }
+
+    .urun-kullanim-simgesi {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #15967d;
+        color: white;
+        font-weight: 800;
+    }
+
+    .urun-kullanim-kutusu p {
+        margin-top: 4px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    @@media (max-width: 767px) {
+        .urun-detay-ust {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .urun-detay-grid,
+        .bagli-kurum-bilgileri {
+            grid-template-columns: 1fr;
+        }
+
+        .bagli-kurum-karti {
+            flex-direction: column;
+        }
+    }
+</style>

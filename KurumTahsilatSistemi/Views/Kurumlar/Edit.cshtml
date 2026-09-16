@@ -1,0 +1,309 @@
+﻿@model KurumTahsilatSistemi.Models.Kurum
+
+@{
+    ViewData["Title"] = "Kurum Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center
+                    gap-3 mb-4">
+
+            <div>
+                <h2 class="mb-2">Kurum Düzenle</h2>
+
+                <p class="text-muted mb-0">
+                    Kuruma ait kayıtlı bilgileri güncelleyebilirsiniz.
+                </p>
+            </div>
+
+            <div class="kurum-id-etiketi">
+                Kayıt No: @Model.Id
+            </div>
+        </div>
+
+        <div class="card">
+
+            <div class="card-header d-flex align-items-center gap-3">
+                <div class="duzenle-baslik-simgesi">
+                    @{
+                        var kurumHarfi =
+                        string.IsNullOrWhiteSpace(Model.KurumAdi)
+                        ? "K"
+                        : Model.KurumAdi.Substring(0, 1).ToUpper();
+                    }
+
+                    @kurumHarfi
+                </div>
+
+                <div>
+                    <div>Kurum Bilgileri</div>
+
+                    <small class="text-muted fw-normal">
+                        @Model.KurumAdi
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Edit" method="post">
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="KurumKodu"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="KurumKodu"
+                                   class="form-control"
+                                   placeholder="Örnek: UNI001" />
+
+                            <span asp-validation-for="KurumKodu"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Kuruma ait benzersiz kodu değiştirebilirsiniz.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="KurumAdi"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="KurumAdi"
+                                   class="form-control"
+                                   placeholder="Kurum adını giriniz" />
+
+                            <span asp-validation-for="KurumAdi"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label asp-for="HesapNo"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="HesapNo"
+                                   class="form-control"
+                                   placeholder="Kurum tahsilat hesabını giriniz" />
+
+                            <span asp-validation-for="HesapNo"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Tahsilatların aktarılacağı kurum hesap
+                                numarasıdır.
+                            </div>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <div class="kurum-durum-kutusu">
+
+                                <div>
+                                    <div class="fw-semibold mb-1">
+                                        Kurum Durumu
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        Pasif kurumlar borç aktarımı sırasında
+                                        kurum listesinde gösterilmez.
+                                    </div>
+                                </div>
+
+                                <div class="form-check form-switch">
+                                    <input asp-for="AktifMi"
+                                           class="form-check-input"
+                                           role="switch"
+                                           id="aktifMiSwitch" />
+
+                                    <label for="aktifMiSwitch"
+                                           id="aktifMiYazi"
+                                           class="form-check-label fw-semibold">
+                                        @(Model.AktifMi ? "Aktif" : "Pasif")
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="guncelleme-bilgisi mb-4">
+                        <div class="guncelleme-simgesi">
+                            i
+                        </div>
+
+                        <div>
+                            <strong>Bilgilendirme</strong>
+
+                            <div class="small text-muted mt-1">
+                                Kurum kodunda veya hesap numarasında yapılan
+                                değişiklikler mevcut tahsilat ürünlerini silmez.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Değişiklikleri Kaydet
+                        </button>
+
+                        <a asp-action="Details"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-outline-dark">
+                            Kurum Detayı
+                        </a>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Listeye Dön
+                        </a>
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .kurum-id-etiketi {
+        padding: 8px 13px;
+        border: 1px solid #dce4ee;
+        border-radius: 8px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .duzenle-baslik-simgesi {
+        width: 46px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .kurum-durum-kutusu {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+        .kurum-durum-kutusu .form-check-input {
+            width: 48px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+            .kurum-durum-kutusu .form-check-input:checked {
+                border-color: #15967d;
+                background-color: #15967d;
+            }
+
+    .guncelleme-bilgisi {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 16px 18px;
+        border: 1px solid #cddff1;
+        border-left: 4px solid #1d5b9e;
+        border-radius: 10px;
+        background-color: #f5f9fd;
+    }
+
+    .guncelleme-simgesi {
+        width: 31px;
+        height: 31px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #123b6d;
+        color: white;
+        font-weight: 800;
+    }
+
+    .form-text {
+        margin-top: 6px;
+        color: #667085;
+        font-size: 12px;
+    }
+
+    @@media (max-width: 576px) {
+        .kurum-durum-kutusu {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const aktifMiSwitch =
+                document.getElementById("aktifMiSwitch");
+
+            const aktifMiYazi =
+                document.getElementById("aktifMiYazi");
+
+            function durumYazisiniGuncelle() {
+                if (!aktifMiSwitch || !aktifMiYazi) {
+                    return;
+                }
+
+                if (aktifMiSwitch.checked) {
+                    aktifMiYazi.textContent = "Aktif";
+                    aktifMiYazi.classList.remove("text-secondary");
+                    aktifMiYazi.classList.add("text-success");
+                } else {
+                    aktifMiYazi.textContent = "Pasif";
+                    aktifMiYazi.classList.remove("text-success");
+                    aktifMiYazi.classList.add("text-secondary");
+                }
+            }
+
+            durumYazisiniGuncelle();
+
+            aktifMiSwitch.addEventListener(
+                "change",
+                durumYazisiniGuncelle
+            );
+        });
+    </script>
+}

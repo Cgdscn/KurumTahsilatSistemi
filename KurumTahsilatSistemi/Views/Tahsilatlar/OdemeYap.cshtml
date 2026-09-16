@@ -1,0 +1,370 @@
+﻿@model KurumTahsilatSistemi.ViewModels.TahsilatYapViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Yap";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-10">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Ödeme Yap</h2>
+
+            <p class="text-muted mb-0">
+                Borç bilgilerini kontrol ederek ödeme yöntemini seçiniz.
+            </p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4">
+                <div class="card borc-ozet-karti h-100">
+                    <div class="card-header">
+                        Borç Özeti
+                    </div>
+
+                    <div class="card-body">
+                        <div class="ozet-satiri">
+                            <span>Müşteri</span>
+                            <strong>@Model.MusteriAdi</strong>
+                        </div>
+
+                        <div class="ozet-satiri">
+                            <span>Referans No</span>
+                            <strong>@Model.ReferansNo</strong>
+                        </div>
+
+                        <div class="borc-tutari-alani">
+                            <span>Ödenecek Tutar</span>
+
+                            <strong>
+                                @Model.BorcTutari.ToString("N2") TL
+                            </strong>
+                        </div>
+
+                        <div class="alert alert-info mb-0 mt-4">
+                            Ödeme tamamlandıktan sonra işlem numarası
+                            oluşturulacak ve dekont görüntülenecektir.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card h-100">
+
+                    <div class="card-header">
+                        Ödeme Yöntemi Seçimi
+                    </div>
+
+                    <div class="card-body">
+
+                        <form asp-action="OdemeYap" method="post">
+
+                            <input type="hidden" asp-for="BorcId" />
+                            <input type="hidden" asp-for="MusteriAdi" />
+                            <input type="hidden" asp-for="ReferansNo" />
+                            <input type="hidden" asp-for="BorcTutari" />
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3">
+                            </div>
+
+                            <div class="odeme-secenekleri">
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="Vadesiz Hesaptan Ödeme" />
+
+                                    <span class="odeme-simge">VH</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>Vadesiz Hesaptan Ödeme</strong>
+
+                                        <small>
+                                            Banka hesabınızdan doğrudan ödeme yapın.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="Kredi Kartı" />
+
+                                    <span class="odeme-simge">KK</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>Kredi Kartı</strong>
+
+                                        <small>
+                                            Kredi kartı bilgilerinizi kullanarak ödeyin.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="Banka Kartı" />
+
+                                    <span class="odeme-simge">BK</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>Banka Kartı</strong>
+
+                                        <small>
+                                            Banka kartınızla güvenli ödeme yapın.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="Mobil Bankacılık" />
+
+                                    <span class="odeme-simge">MB</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>Mobil Bankacılık</strong>
+
+                                        <small>
+                                            Mobil kanal üzerinden hesap seçerek ödeyin.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="İnternet Bankacılığı" />
+
+                                    <span class="odeme-simge">İB</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>İnternet Bankacılığı</strong>
+
+                                        <small>
+                                            İnternet bankacılığı hesabınızı kullanın.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="Şube" />
+
+                                    <span class="odeme-simge">ŞB</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>Şube</strong>
+
+                                        <small>
+                                            Şube ve vezne bilgileriyle tahsilat yapın.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                                <label class="odeme-karti">
+                                    <input asp-for="OdemeKanali"
+                                           type="radio"
+                                           value="Nakit" />
+
+                                    <span class="odeme-simge">NK</span>
+
+                                    <span class="odeme-metin">
+                                        <strong>Nakit</strong>
+
+                                        <small>
+                                            Şube veznesinden nakit ödeme kaydı oluşturun.
+                                        </small>
+                                    </span>
+
+                                    <span class="secim-isareti"></span>
+                                </label>
+
+                            </div>
+
+                            <span asp-validation-for="OdemeKanali"
+                                  class="text-danger d-block mt-2">
+                            </span>
+
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    Devam Et
+                                </button>
+
+                                <a asp-controller="Borclar"
+                                   asp-action="Sorgula"
+                                   class="btn btn-secondary">
+                                    Vazgeç
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .borc-ozet-karti {
+        position: sticky;
+        top: 20px;
+    }
+
+    .ozet-satiri {
+        padding: 13px 0;
+        border-bottom: 1px solid #e7ecf2;
+    }
+
+        .ozet-satiri span {
+            display: block;
+            margin-bottom: 4px;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .ozet-satiri strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .borc-tutari-alani {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #123b6d, #1d5b9e);
+        color: white;
+    }
+
+        .borc-tutari-alani span {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 13px;
+        }
+
+        .borc-tutari-alani strong {
+            display: block;
+            font-size: 25px;
+        }
+
+    .odeme-secenekleri {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 13px;
+    }
+
+    .odeme-karti {
+        position: relative;
+        min-height: 108px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 16px;
+        border: 2px solid #dce4ee;
+        border-radius: 12px;
+        background-color: #ffffff;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    }
+
+        .odeme-karti:hover {
+            border-color: #8ba9ca;
+            background-color: #f7faff;
+            transform: translateY(-1px);
+        }
+
+        .odeme-karti input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .odeme-karti:has(input:checked) {
+            border-color: #123b6d;
+            background-color: #f1f6fc;
+            box-shadow: 0 0 0 3px rgba(18, 59, 109, 0.09);
+        }
+
+    .odeme-simge {
+        width: 43px;
+        height: 43px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .odeme-metin {
+        flex: 1;
+    }
+
+        .odeme-metin strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #1d2939;
+            font-size: 14px;
+        }
+
+        .odeme-metin small {
+            display: block;
+            color: #667085;
+            line-height: 1.4;
+        }
+
+    .secim-isareti {
+        width: 19px;
+        height: 19px;
+        flex-shrink: 0;
+        border: 2px solid #b8c4d3;
+        border-radius: 50%;
+        background-color: white;
+    }
+
+    .odeme-karti:has(input:checked) .secim-isareti {
+        border: 5px solid #123b6d;
+    }
+
+    @@media (max-width: 767px) {
+        .odeme-secenekleri {
+            grid-template-columns: 1fr;
+        }
+
+        .borc-ozet-karti {
+            position: static;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

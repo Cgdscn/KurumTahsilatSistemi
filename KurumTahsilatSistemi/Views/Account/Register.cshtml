@@ -1,0 +1,154 @@
+﻿@model KurumTahsilatSistemi.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+
+        <div class="text-center mb-4">
+            <h2 class="mb-2">
+                Kullanıcı Hesabı Oluştur
+            </h2>
+
+            <p class="text-muted mb-0">
+                Sistemde kayıtlı müşteri bilgilerinizi
+                doğrulayarak hesabınızı oluşturabilirsiniz.
+            </p>
+        </div>
+
+        <div class="card register-card">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="alert alert-info mb-4">
+                    Müşteri numarası, T.C. kimlik numarası ve
+                    e-posta bilgilerinizin sistemdeki müşteri
+                    kaydıyla eşleşmesi gerekmektedir.
+                </div>
+
+                <form asp-controller="Account"
+                      asp-action="Register"
+                      method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MusteriNo"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="MusteriNo"
+                               class="form-control"
+                               placeholder="Örn: MUS1001" />
+
+                        <span asp-validation-for="MusteriNo"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Tckn"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Tckn"
+                               class="form-control"
+                               inputmode="numeric"
+                               maxlength="11"
+                               placeholder="11 haneli T.C. kimlik numarası" />
+
+                        <span asp-validation-for="Tckn"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Email"
+                               class="form-control"
+                               autocomplete="email"
+                               placeholder="ornek@email.com" />
+
+                        <span asp-validation-for="Email"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label asp-for="Password"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Password"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100 mt-4">
+                        Hesabımı Oluştur
+                    </button>
+
+                    <div class="text-center mt-4">
+                        <span class="text-muted">
+                            Zaten hesabınız var mı?
+                        </span>
+
+                        <a asp-controller="Account"
+                           asp-action="Login"
+                           class="fw-semibold text-decoration-none">
+                            Giriş Yap
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .register-card {
+        border: 1px solid #dce4ee;
+        border-radius: 15px;
+        box-shadow:
+            0 12px 30px rgba(18, 59, 109, 0.09);
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+}

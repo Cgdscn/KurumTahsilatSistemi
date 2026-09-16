@@ -1,0 +1,305 @@
+﻿@model KurumTahsilatSistemi.Models.Kurum
+
+@{
+    ViewData["Title"] = "Kurum Sil";
+
+    var kurumHarfi =
+        string.IsNullOrWhiteSpace(Model.KurumAdi)
+        ? "K"
+        : Model.KurumAdi.Substring(0, 1).ToUpper();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Kurum Silme</h2>
+
+            <p class="text-muted mb-0">
+                Silme işleminden önce kurum bilgilerini kontrol ediniz.
+            </p>
+        </div>
+
+        <div class="silme-uyarisi mb-4">
+            <div class="silme-uyari-simgesi">
+                !
+            </div>
+
+            <div>
+                <strong>Bu işlem geri alınamaz</strong>
+
+                <p class="mb-0 mt-1">
+                    Kurum silindiğinde kuruma bağlı tahsilat ürünleri veya
+                    borç kayıtları varsa işlem veri tabanı ilişkileri nedeniyle
+                    başarısız olabilir.
+                </p>
+            </div>
+        </div>
+
+        <div class="card silme-karti">
+
+            <div class="silme-kart-ust">
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="silme-kurum-avatar">
+                        @kurumHarfi
+                    </div>
+
+                    <div>
+                        <h3 class="mb-1">
+                            @Model.KurumAdi
+                        </h3>
+
+                        <span class="silme-kurum-kodu">
+                            @Model.KurumKodu
+                        </span>
+                    </div>
+
+                </div>
+
+                <div>
+                    @if (Model.AktifMi)
+                    {
+                        <span class="badge bg-success">
+                            Aktif
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            Pasif
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <div class="silme-detay-grid">
+
+                    <div class="silme-detay-alani">
+                        <span>Kayıt Numarası</span>
+                        <strong>@Model.Id</strong>
+                    </div>
+
+                    <div class="silme-detay-alani">
+                        <span>Kurum Kodu</span>
+                        <strong>@Model.KurumKodu</strong>
+                    </div>
+
+                    <div class="silme-detay-alani">
+                        <span>Kurum Adı</span>
+                        <strong>@Model.KurumAdi</strong>
+                    </div>
+
+                    <div class="silme-detay-alani">
+                        <span>Hesap Numarası</span>
+
+                        @if (string.IsNullOrWhiteSpace(Model.HesapNo))
+                        {
+                            <strong class="text-muted">
+                                Tanımlanmamış
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong>@Model.HesapNo</strong>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="silme-onay-kutusu mt-4">
+                    <strong>Silme işleminden önce kontrol ediniz</strong>
+
+                    <ul class="mb-0 mt-2">
+                        <li>
+                            Kuruma bağlı tahsilat ürünü bulunup bulunmadığı
+                            kontrol edilmelidir.
+                        </li>
+
+                        <li>
+                            Kuruma ait geçmiş borç ve tahsilat kayıtları
+                            korunmalıdır.
+                        </li>
+
+                        <li>
+                            Geçmiş işlem bulunan kurumlarda silmek yerine
+                            pasif duruma getirmek daha uygundur.
+                        </li>
+                    </ul>
+                </div>
+
+                <form asp-action="Delete"
+                      method="post"
+                      class="mt-4">
+
+                    <input type="hidden"
+                           asp-for="Id" />
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <button type="submit"
+                                class="btn btn-danger"
+                                onclick="return confirm('Bu kurumu silmek istediğinizden emin misiniz?')">
+                            Kurumu Kalıcı Olarak Sil
+                        </button>
+
+                        <a asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-primary">
+                            Kurumu Pasif Yap
+                        </a>
+
+                        <a asp-action="Details"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-outline-dark">
+                            Kurum Detayına Dön
+                        </a>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Listeye Dön
+                        </a>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .silme-uyarisi {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px 20px;
+        border: 1px solid #f0caca;
+        border-left: 5px solid #d44848;
+        border-radius: 11px;
+        background-color: #fff6f6;
+        color: #6f3737;
+    }
+
+        .silme-uyarisi p {
+            color: #8a5151;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+    .silme-uyari-simgesi {
+        width: 39px;
+        height: 39px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #d44848;
+        color: white;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .silme-karti {
+        overflow: hidden;
+    }
+
+    .silme-kart-ust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 24px 26px;
+        border-bottom: 1px solid #e6ebf2;
+        background-color: #f8fafc;
+    }
+
+    .silme-kurum-avatar {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 15px;
+        background-color: #fdeaea;
+        color: #a92f2f;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .silme-kart-ust h3 {
+        color: #1d2939;
+    }
+
+    .silme-kurum-kodu {
+        display: inline-block;
+        padding: 5px 9px;
+        border: 1px solid #dce4ee;
+        border-radius: 7px;
+        background-color: white;
+        color: #667085;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .silme-detay-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .silme-detay-alani {
+        padding: 15px 17px;
+        border: 1px solid #e1e7ef;
+        border-radius: 10px;
+        background-color: #f8fafc;
+    }
+
+        .silme-detay-alani span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .silme-detay-alani strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .silme-onay-kutusu {
+        padding: 17px 19px;
+        border: 1px solid #f1d5a4;
+        border-left: 4px solid #e2a52b;
+        border-radius: 10px;
+        background-color: #fffaf0;
+    }
+
+        .silme-onay-kutusu strong {
+            color: #805d10;
+        }
+
+        .silme-onay-kutusu ul {
+            padding-left: 20px;
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+    @@media (max-width: 767px) {
+        .silme-kart-ust {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .silme-detay-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

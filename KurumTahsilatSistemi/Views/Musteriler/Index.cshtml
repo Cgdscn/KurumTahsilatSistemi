@@ -1,0 +1,404 @@
+﻿@model IEnumerable<KurumTahsilatSistemi.Models.Musteri>
+
+@{
+    ViewData["Title"] = "Müşteri Yönetimi";
+
+    var arama = ViewBag.Arama as string;
+}
+
+<div class="d-flex flex-column flex-md-row
+            justify-content-between align-items-md-center
+            gap-3 mb-4">
+
+    <div>
+        <h2 class="mb-2">Müşteri Yönetimi</h2>
+
+        <p class="text-muted mb-0">
+            Sistemde kayıtlı müşterileri görüntüleyebilir, yeni müşteri
+            oluşturabilir ve mevcut kayıtları güncelleyebilirsiniz.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+        Yeni Müşteri Oluştur
+    </a>
+</div>
+
+@if (TempData["BasariMesaji"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert">
+
+        @TempData["BasariMesaji"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat">
+        </button>
+    </div>
+}
+
+@if (TempData["HataMesaji"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show"
+         role="alert">
+
+        @TempData["HataMesaji"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat">
+        </button>
+    </div>
+}
+
+<div class="card mb-4">
+
+    <div class="card-header">
+        Müşteri Arama
+    </div>
+
+    <div class="card-body">
+
+        <form asp-action="Index"
+              method="get">
+
+            <div class="row g-2">
+
+                <div class="col-md-9">
+                    <input type="text"
+                           name="arama"
+                           value="@arama"
+                           class="form-control"
+                           placeholder="Müşteri no, ad soyad, T.C. kimlik, vergi no veya e-posta ile arayın" />
+                </div>
+
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary flex-grow-1">
+                            Ara
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Temizle
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<div class="card">
+
+    <div class="card-header d-flex
+                justify-content-between align-items-center
+                flex-wrap gap-2">
+
+        <span>Müşteri Listesi</span>
+
+        <span class="musteri-sayisi">
+            Toplam @Model.Count() kayıt
+        </span>
+    </div>
+
+    <div class="card-body p-0">
+
+        @if (!Model.Any())
+        {
+            <div class="musteri-bos-alan">
+
+                <div class="musteri-bos-simge">
+                    M
+                </div>
+
+                <h5>Müşteri kaydı bulunamadı</h5>
+
+                <p>
+                    Arama kriterlerine uygun müşteri bulunamadı veya
+                    sisteme henüz müşteri eklenmedi.
+                </p>
+
+                <a asp-action="Create"
+                   class="btn btn-primary">
+                    İlk Müşteriyi Oluştur
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle
+                                  musteri-tablosu mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Müşteri</th>
+                            <th>Müşteri Numarası</th>
+                            <th>Kimlik / Vergi No</th>
+                            <th>İletişim</th>
+                            <th>Durum</th>
+                            <th>Oluşturulma Tarihi</th>
+                            <th class="text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var musteri in Model)
+                        {
+                            var adSoyad = musteri.AdSoyad ?? string.Empty;
+
+                            var musteriHarfi =
+                            string.IsNullOrWhiteSpace(adSoyad)
+                            ? "M"
+                            : adSoyad.Substring(0, 1).ToUpper();
+
+                            <tr>
+                                <td>
+                                    <div class="musteri-bilgisi">
+
+                                        <div class="musteri-avatar">
+                                            @musteriHarfi
+                                        </div>
+
+                                        <div>
+                                            <div class="fw-semibold">
+                                                @(string.IsNullOrWhiteSpace(
+                                                                                        musteri.AdSoyad)
+                                                                                        ? "-"
+                                                                                        : musteri.AdSoyad)
+                                    </div>
+
+                                            <div class="small text-muted">
+                                                Kayıt No: @musteri.Id
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="musteri-no-etiketi">
+                                        @musteri.MusteriNo
+                                    </span>
+                                </td>
+
+                                <td>
+                            @if (!string.IsNullOrWhiteSpace(
+                                                        musteri.Tckn))
+                                    {
+                                        <div>
+                                            <span class="small text-muted">
+                                                TCKN
+                                            </span>
+
+                                            <div class="fw-semibold">
+                                                @musteri.Tckn
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(
+                                    musteri.VergiNo))
+                                    {
+                                        <div>
+                                            <span class="small text-muted">
+                                                Vergi No
+                                            </span>
+
+                                            <div class="fw-semibold">
+                                                @musteri.VergiNo
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Tanımlanmamış
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                musteri.Email))
+                                    {
+                                        <div class="iletisim-satiri">
+                                            @musteri.Email
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                musteri.Telefon))
+                                    {
+                                        <div class="small text-muted mt-1">
+                                            @musteri.Telefon
+                                        </div>
+                                    }
+
+                                    @if (string.IsNullOrWhiteSpace(
+                                                                musteri.Email) &&
+                                                                string.IsNullOrWhiteSpace(
+                                                                musteri.Telefon))
+                                    {
+                                        <span class="text-muted">
+                                            Tanımlanmamış
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (musteri.AktifMi)
+                                    {
+                                        <span class="badge bg-success">
+                                            Aktif
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Pasif
+                                        </span>
+                                    }
+                            </td>
+
+                            <td>
+                                @(musteri.OlusturmaTarihi
+                                                            .ToString("dd.MM.yyyy HH:mm"))
+                        </td>
+
+                                <td class="text-end">
+                                    <div class="d-flex
+                                                        justify-content-end
+                                                        flex-wrap gap-1">
+
+                                        <a asp-action="Details"
+                                           asp-route-id="@musteri.Id"
+                                           class="btn btn-outline-dark btn-sm">
+                                            Detay
+                                        </a>
+
+                                        <a asp-action="Edit"
+                                           asp-route-id="@musteri.Id"
+                                           class="btn btn-outline-primary btn-sm">
+                                            Düzenle
+                                        </a>
+
+                                    </div>
+                                </td>
+                            </tr>
+                                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+</div>
+
+<style>
+    .musteri-sayisi {
+        padding: 6px 10px;
+        border: 1px solid #dce4ee;
+        border-radius: 8px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .musteri-tablosu {
+        min-width: 1050px;
+        font-size: 13px;
+    }
+
+        .musteri-tablosu th,
+        .musteri-tablosu td {
+            padding: 13px 12px;
+            vertical-align: middle;
+        }
+
+        .musteri-tablosu th {
+            white-space: nowrap;
+        }
+
+    .musteri-bilgisi {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 190px;
+    }
+
+    .musteri-avatar {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .musteri-no-etiketi {
+        display: inline-block;
+        padding: 6px 9px;
+        border: 1px solid #dce4ee;
+        border-radius: 7px;
+        background-color: #f8fafc;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .iletisim-satiri {
+        max-width: 190px;
+        overflow: hidden;
+        color: #344054;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .musteri-bos-alan {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .musteri-bos-simge {
+        width: 62px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        border-radius: 17px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .musteri-bos-alan p {
+        max-width: 520px;
+        margin: 0 auto 20px;
+        color: #667085;
+        font-size: 13px;
+    }
+</style>

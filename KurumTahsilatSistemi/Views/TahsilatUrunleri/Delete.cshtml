@@ -1,0 +1,399 @@
+﻿@model KurumTahsilatSistemi.Models.TahsilatUrunu
+
+@{
+    ViewData["Title"] = "Tahsilat Ürünü Sil";
+
+    var urunHarfi =
+        string.IsNullOrWhiteSpace(Model.UrunAdi)
+        ? "T"
+        : Model.UrunAdi.Substring(0, 1).ToUpper();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Tahsilat Ürünü Silme</h2>
+
+            <p class="text-muted mb-0">
+                Silme işleminden önce tahsilat ürünü ve bağlı kurum
+                bilgilerini kontrol ediniz.
+            </p>
+        </div>
+
+        <div class="urun-silme-uyarisi mb-4">
+            <div class="urun-silme-uyari-simgesi">
+                !
+            </div>
+
+            <div>
+                <strong>Bu işlem geri alınamaz</strong>
+
+                <p class="mb-0 mt-1">
+                    Tahsilat ürününe bağlı borç kayıtları bulunuyorsa
+                    veri tabanı ilişkileri nedeniyle silme işlemi
+                    gerçekleştirilemeyebilir.
+                </p>
+            </div>
+        </div>
+
+        <div class="card urun-silme-karti">
+
+            <div class="urun-silme-ust">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="urun-silme-avatar">
+                        @urunHarfi
+                    </div>
+
+                    <div>
+                        <h3 class="mb-1">
+                            @Model.UrunAdi
+                        </h3>
+
+                        <span class="urun-silme-kodu">
+                            @Model.UrunKodu
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="urun-silme-kayit">
+                    Kayıt No: @Model.Id
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="urun-silme-grid">
+
+                    <div class="urun-silme-alani">
+                        <span>Kayıt Numarası</span>
+
+                        <strong>
+                            @Model.Id
+                        </strong>
+                    </div>
+
+                    <div class="urun-silme-alani">
+                        <span>Ürün Kodu</span>
+
+                        <strong>
+                            @Model.UrunKodu
+                        </strong>
+                    </div>
+
+                    <div class="urun-silme-alani">
+                        <span>Ürün Adı</span>
+
+                        <strong>
+                            @Model.UrunAdi
+                        </strong>
+                    </div>
+
+                    <div class="urun-silme-alani">
+                        <span>Bağlı Kurum Numarası</span>
+
+                        <strong>
+                            @Model.KurumId
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="bagli-kurum-silme-kutusu mt-4">
+
+                    <div class="bagli-kurum-silme-simgesi">
+                        K
+                    </div>
+
+                    <div class="flex-grow-1">
+
+                        <span>Bağlı Kurum</span>
+
+                        @if (Model.Kurum != null)
+                        {
+                            <strong>
+                                @Model.Kurum.KurumAdi
+                            </strong>
+
+                            <div class="small text-muted mt-1">
+                                Kurum Kodu: @Model.Kurum.KurumKodu
+                            </div>
+                        }
+                        else
+                        {
+                            <strong class="text-danger">
+                                Kurum bilgisi bulunamadı
+                            </strong>
+                        }
+
+                    </div>
+
+                    @if (Model.Kurum != null)
+                    {
+                        @if (Model.Kurum.AktifMi)
+                        {
+                            <span class="badge bg-success">
+                                Aktif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Pasif
+                            </span>
+                        }
+                    }
+
+                </div>
+
+                <div class="urun-silme-kontrol mt-4">
+
+                    <strong>Silmeden önce kontrol edilmesi gerekenler</strong>
+
+                    <ul class="mb-0 mt-2">
+                        <li>
+                            Ürüne bağlı borç kaydı bulunup bulunmadığı
+                            kontrol edilmelidir.
+                        </li>
+
+                        <li>
+                            Geçmiş tahsilat işlemleri ürün bilgisine bağlı
+                            olarak görüntülenmektedir.
+                        </li>
+
+                        <li>
+                            Geçmiş işlem bulunan ürünlerin silinmesi yerine
+                            sistemde korunması daha uygundur.
+                        </li>
+                    </ul>
+
+                </div>
+
+                <form asp-action="Delete"
+                      method="post"
+                      class="mt-4">
+
+                    <input type="hidden"
+                           asp-for="Id" />
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <button type="submit"
+                                class="btn btn-danger"
+                                onclick="return confirm('Bu tahsilat ürününü silmek istediğinizden emin misiniz?')">
+                            Ürünü Kalıcı Olarak Sil
+                        </button>
+
+                        <a asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-primary">
+                            Ürünü Düzenle
+                        </a>
+
+                        <a asp-action="Details"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-outline-dark">
+                            Ürün Detayına Dön
+                        </a>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Listeye Dön
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .urun-silme-uyarisi {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px 20px;
+        border: 1px solid #f0caca;
+        border-left: 5px solid #d44848;
+        border-radius: 11px;
+        background-color: #fff6f6;
+        color: #6f3737;
+    }
+
+        .urun-silme-uyarisi p {
+            color: #8a5151;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+    .urun-silme-uyari-simgesi {
+        width: 39px;
+        height: 39px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #d44848;
+        color: white;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .urun-silme-karti {
+        overflow: hidden;
+    }
+
+    .urun-silme-ust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 24px 26px;
+        border-bottom: 1px solid #e6ebf2;
+        background-color: #f8fafc;
+    }
+
+    .urun-silme-avatar {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 15px;
+        background-color: #fdeaea;
+        color: #a92f2f;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .urun-silme-ust h3 {
+        color: #1d2939;
+    }
+
+    .urun-silme-kodu {
+        display: inline-block;
+        padding: 5px 9px;
+        border: 1px solid #dce4ee;
+        border-radius: 7px;
+        background-color: white;
+        color: #667085;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .urun-silme-kayit {
+        padding: 8px 12px;
+        border: 1px solid #dce4ee;
+        border-radius: 8px;
+        background-color: white;
+        color: #117b68;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .urun-silme-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .urun-silme-alani {
+        padding: 15px 17px;
+        border: 1px solid #e1e7ef;
+        border-radius: 10px;
+        background-color: #f8fafc;
+    }
+
+        .urun-silme-alani span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .urun-silme-alani strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .bagli-kurum-silme-kutusu {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+    .bagli-kurum-silme-simgesi {
+        width: 45px;
+        height: 45px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e6f5f1;
+        color: #117b68;
+        font-weight: 800;
+    }
+
+    .bagli-kurum-silme-kutusu span,
+    .bagli-kurum-silme-kutusu strong {
+        display: block;
+    }
+
+    .bagli-kurum-silme-kutusu > div > span {
+        margin-bottom: 4px;
+        color: #667085;
+        font-size: 12px;
+    }
+
+    .urun-silme-kontrol {
+        padding: 17px 19px;
+        border: 1px solid #f1d5a4;
+        border-left: 4px solid #e2a52b;
+        border-radius: 10px;
+        background-color: #fffaf0;
+    }
+
+        .urun-silme-kontrol strong {
+            color: #805d10;
+        }
+
+        .urun-silme-kontrol ul {
+            padding-left: 20px;
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+    @@media (max-width: 767px) {
+        .urun-silme-ust {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .urun-silme-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bagli-kurum-silme-kutusu {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>

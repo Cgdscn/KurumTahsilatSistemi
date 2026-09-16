@@ -1,0 +1,288 @@
+﻿@model ErrorViewModel
+
+@{
+    ViewData["Title"] = "Sistem Hatası";
+}
+
+<div class="error-page">
+    <div class="error-card">
+
+        <div class="error-icon">
+            !
+        </div>
+
+        <div class="error-code">
+            Sistem Hatası
+        </div>
+
+        <h1>İşlem gerçekleştirilemedi</h1>
+
+        <p class="error-description">
+            İşlem sırasında beklenmeyen bir hata oluştu.
+            Lütfen bilgileri kontrol ederek işlemi tekrar deneyiniz.
+        </p>
+
+        @if (Model.ShowRequestId)
+        {
+            <div class="request-box">
+                <span>İstek Numarası</span>
+
+                <code>
+                    @Model.RequestId
+                </code>
+
+                <small>
+                    Teknik destek talebinde bu numarayı paylaşabilirsiniz.
+                </small>
+            </div>
+        }
+
+        <div class="error-information">
+
+            <div class="information-item">
+                <div class="information-icon">
+                    1
+                </div>
+
+                <div>
+                    <strong>Bilgileri kontrol ediniz</strong>
+
+                    <span>
+                        Form alanlarının doğru ve eksiksiz doldurulduğundan
+                        emin olunuz.
+                    </span>
+                </div>
+            </div>
+
+            <div class="information-item">
+                <div class="information-icon">
+                    2
+                </div>
+
+                <div>
+                    <strong>İşlemi tekrar deneyiniz</strong>
+
+                    <span>
+                        Sayfayı yenileyerek işlemi yeniden
+                        gerçekleştirebilirsiniz.
+                    </span>
+                </div>
+            </div>
+
+            <div class="information-item">
+                <div class="information-icon">
+                    3
+                </div>
+
+                <div>
+                    <strong>İstek numarasını kaydediniz</strong>
+
+                    <span>
+                        Hatanın devam etmesi durumunda teknik inceleme için
+                        istek numarası kullanılabilir.
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="error-actions">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary">
+                Ana Sayfaya Dön
+            </a>
+
+            <button type="button"
+                    class="btn btn-outline-dark"
+                    onclick="history.back()">
+                Önceki Sayfaya Dön
+            </button>
+
+            <button type="button"
+                    class="btn btn-secondary"
+                    onclick="window.location.reload()">
+                Sayfayı Yenile
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .error-page {
+        min-height: calc(100vh - 230px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 0;
+    }
+
+    .error-card {
+        width: 100%;
+        max-width: 760px;
+        padding: 38px;
+        border: 1px solid #dce4ee;
+        border-radius: 18px;
+        background-color: white;
+        text-align: center;
+        box-shadow: 0 16px 40px rgba(18, 59, 109, 0.12);
+    }
+
+    .error-icon {
+        width: 74px;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background-color: #fdeaea;
+        color: #b42318;
+        font-size: 34px;
+        font-weight: 800;
+    }
+
+    .error-code {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background-color: #fff2f0;
+        color: #b42318;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+    }
+
+    .error-card h1 {
+        margin-bottom: 12px;
+        color: #1d2939;
+        font-size: 30px;
+        font-weight: 750;
+    }
+
+    .error-description {
+        max-width: 580px;
+        margin: 0 auto 25px;
+        color: #667085;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .request-box {
+        margin-bottom: 26px;
+        padding: 16px 18px;
+        border: 1px solid #dce4ee;
+        border-radius: 11px;
+        background-color: #f8fafc;
+        text-align: left;
+    }
+
+        .request-box span,
+        .request-box code,
+        .request-box small {
+            display: block;
+        }
+
+        .request-box span {
+            margin-bottom: 6px;
+            color: #667085;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .request-box code {
+            margin-bottom: 6px;
+            color: #123b6d;
+            font-size: 13px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .request-box small {
+            color: #98a2b3;
+            font-size: 11px;
+        }
+
+    .error-information {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 13px;
+        margin-bottom: 28px;
+        text-align: left;
+    }
+
+    .information-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 15px;
+        border: 1px solid #e1e7ef;
+        border-radius: 11px;
+        background-color: #f8fafc;
+    }
+
+    .information-icon {
+        width: 29px;
+        height: 29px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 8px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .information-item strong,
+    .information-item span {
+        display: block;
+    }
+
+    .information-item strong {
+        margin-bottom: 4px;
+        color: #1d2939;
+        font-size: 13px;
+    }
+
+    .information-item span {
+        color: #667085;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .error-actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    @@media (max-width: 767px) {
+        .error-card {
+            padding: 27px 20px;
+        }
+
+            .error-card h1 {
+                font-size: 25px;
+            }
+
+        .error-information {
+            grid-template-columns: 1fr;
+        }
+
+        .error-actions {
+            flex-direction: column;
+        }
+
+            .error-actions .btn {
+                width: 100%;
+            }
+    }
+</style>

@@ -1,0 +1,2584 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using KurumTahsilatSistemi.Models
+@using KurumTahsilatSistemi.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext DbContext
+
+@{
+    var controller =
+        ViewContext.RouteData.Values["controller"]?.ToString();
+
+    var action =
+        ViewContext.RouteData.Values["action"]?.ToString();
+
+    var girisYapildiMi =
+        User.Identity?.IsAuthenticated == true;
+
+    var adminMi =
+        User.IsInRole("Admin");
+
+    var kullaniciMi =
+        User.IsInRole("Kullanici");
+
+    var kullaniciAdi =
+        User.Identity?.Name ?? "Kullanıcı";
+
+    var kullaniciHarfi =
+        string.IsNullOrWhiteSpace(kullaniciAdi)
+            ? "K"
+            : kullaniciAdi.Substring(0, 1).ToUpper();
+
+    var okunmamisBildirimSayisi = 0;
+
+    if (girisYapildiMi)
+    {
+        var oturumKullanicisi =
+            await UserManager.GetUserAsync(User);
+
+        if (oturumKullanicisi is not null)
+        {
+            okunmamisBildirimSayisi =
+                await DbContext.Bildirimler
+                    .AsNoTracking()
+                    .CountAsync(x =>
+                        x.ApplicationUserId ==
+                            oturumKullanicisi.Id &&
+                        !x.OkunduMu);
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - Kurum Tahsilat Sistemi
+    </title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/KurumTahsilatSistemi.styles.css"
+          asp-append-version="true" />
+
+    <style>
+        .app-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0;
+            color: white;
+            text-decoration: none;
+        }
+
+            .app-brand:hover,
+            .app-brand:focus {
+                color: white;
+            }
+
+        .app-logo-mark {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            filter: drop-shadow( 0 5px 10px rgba(0, 0, 0, 0.15) );
+        }
+
+        .app-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+            .app-brand-text strong {
+                color: white;
+                font-size: 18px;
+                font-weight: 750;
+            }
+
+            .app-brand-text small {
+                margin-top: 4px;
+                color: rgba(255, 255, 255, 0.65);
+                font-size: 11px;
+            }
+
+        .kullanici-menu-buton {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 38px;
+        }
+
+        .kullanici-avatar {
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+            color: #123b6d;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .kullanici-dropdown {
+            width: 260px;
+            margin-top: 10px;
+            border: 1px solid #dce4ee;
+            border-radius: 11px;
+            box-shadow: 0 12px 30px rgba(18, 59, 109, 0.15);
+        }
+
+        .kullanici-email {
+            overflow-wrap: anywhere;
+            color: #1d2939;
+            font-size: 13px;
+        }
+
+        .kullanici-dropdown .dropdown-item {
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+            .kullanici-dropdown .dropdown-item:hover {
+                background-color: #fff2f0;
+            }
+
+
+        /* Bildirim zili */
+        .bildirim-nav-link {
+            position: relative;
+            min-width: 42px;
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 7px;
+            border-radius: 9px;
+            color: rgba(255, 255, 255, 0.88) !important;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+            .bildirim-nav-link:hover,
+            .bildirim-nav-link.active {
+                background-color: rgba(255, 255, 255, 0.12);
+                color: #ffffff !important;
+            }
+
+        .bildirim-zil {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+
+        .bildirim-sayisi {
+            position: absolute;
+            top: -4px;
+            right: -5px;
+            min-width: 19px;
+            height: 19px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid #123b6d;
+            border-radius: 999px;
+            background-color: #dc3545;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* AI açma butonu */
+        .ai-fab {
+            position: fixed;
+            right: 26px;
+            bottom: 26px;
+            z-index: 1080;
+            width: 68px;
+            height: 68px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0b294d, #1677e8);
+            box-shadow: 0 12px 28px rgba(11, 41, 77, 0.35);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .ai-fab:hover {
+                transform: translateY(-4px) scale(1.04);
+                box-shadow: 0 16px 35px rgba(11, 41, 77, 0.42);
+            }
+
+            .ai-fab svg {
+                width: 100%;
+                height: 100%;
+            }
+
+            .ai-fab.ai-fab-gizli {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transform: scale(0.8);
+            }
+
+        .ai-fab-status {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 15px;
+            height: 15px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            background-color: #18a77f;
+        }
+
+        /* AI paneli */
+        .ai-widget-panel {
+            width: min(430px, 100vw) !important;
+            border-left: none;
+            box-shadow: -12px 0 35px rgba(11, 41, 77, 0.18);
+        }
+
+        .ai-widget-header {
+            min-height: 84px;
+            padding: 16px 18px;
+            background: linear-gradient(135deg, #0b294d, #174f89);
+            color: #ffffff;
+        }
+
+            .ai-widget-header h5 {
+                color: #ffffff;
+                font-size: 17px;
+            }
+
+        .ai-widget-avatar {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-radius: 14px;
+            background-color: #ffffff;
+            color: #123b6d;
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .ai-widget-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 11px;
+        }
+
+        .ai-widget-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #35d6a7;
+        }
+
+        .ai-widget-body {
+            height: calc(100vh - 84px);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .ai-widget-messages {
+            flex: 1;
+            padding: 20px 16px;
+            overflow-y: auto;
+            background-color: #f4f7fb;
+        }
+
+        .ai-widget-welcome {
+            margin-top: 35px;
+            text-align: center;
+        }
+
+        .ai-widget-welcome-icon {
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            border-radius: 17px;
+            background: linear-gradient(135deg, #123b6d, #1677e8);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .ai-widget-welcome h6 {
+            color: #123b6d;
+            font-weight: 750;
+        }
+
+        .ai-widget-welcome p {
+            margin: 8px 15px 18px;
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .ai-widget-example {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px 12px;
+            border: 1px solid #d5e1ee;
+            border-radius: 10px;
+            background-color: #ffffff;
+            color: #123b6d;
+            font-size: 12px;
+            text-align: left;
+        }
+
+            .ai-widget-example:hover {
+                border-color: #1677e8;
+                background-color: #f0f6fd;
+            }
+
+        .ai-widget-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+            .ai-widget-row.user {
+                justify-content: flex-end;
+            }
+
+            .ai-widget-row.assistant {
+                justify-content: flex-start;
+            }
+
+        .ai-widget-mini-avatar {
+            width: 29px;
+            height: 29px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 9px;
+            background-color: #123b6d;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .ai-widget-bubble {
+            max-width: 80%;
+            padding: 11px 13px 7px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .ai-widget-row.user .ai-widget-bubble {
+            border-bottom-right-radius: 4px;
+            background-color: #123b6d;
+            color: #ffffff;
+        }
+
+        .ai-widget-row.assistant .ai-widget-bubble {
+            border: 1px solid #dce4ee;
+            border-bottom-left-radius: 4px;
+            background-color: #ffffff;
+            color: #344054;
+        }
+
+        .ai-widget-time {
+            margin-top: 5px;
+            font-size: 9px;
+            text-align: right;
+            opacity: 0.65;
+        }
+
+        .ai-widget-input-area {
+            padding: 15px;
+            border-top: 1px solid #dce4ee;
+            background-color: #ffffff;
+        }
+
+        .ai-widget-input-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+            .ai-widget-input-group textarea {
+                min-height: 55px;
+                max-height: 130px;
+                resize: none;
+            }
+
+            .ai-widget-input-group .btn {
+                min-height: 45px;
+            }
+
+        .hesap-menu-simge {
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            border-radius: 7px;
+            background-color: #e7f0fa;
+            color: #123b6d;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .hesap-menu-cikis {
+            background-color: #fff0f0;
+            color: #b42318;
+        }
+
+        .kullanici-dropdown .dropdown-item.active {
+            background-color: #e7f0fa;
+            color: #123b6d;
+        }
+
+            .kullanici-dropdown .dropdown-item.active
+            .hesap-menu-simge {
+                background-color: #123b6d;
+                color: #ffffff;
+            }
+
+        @@media (max-width: 1199px) {
+            .kullanici-menu-buton {
+                margin-top: 10px;
+            }
+
+            .kullanici-dropdown {
+                width: 100%;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .app-logo-mark {
+                width: 43px;
+                height: 43px;
+            }
+
+            .app-brand-text strong {
+                font-size: 15px;
+            }
+
+            .app-brand-text small {
+                font-size: 9px;
+            }
+
+            .ai-fab {
+                right: 16px;
+                bottom: 16px;
+                width: 60px;
+                height: 60px;
+            }
+
+            .ai-widget-panel {
+                width: 100vw !important;
+            }
+        }
+
+        /* =========================================================
+                   SOL MENÜLÜ YENİ UYGULAMA DÜZENİ
+                   ========================================================= */
+
+        :root {
+            --kt-topbar-height: 80px;
+            --kt-sidebar-width: 278px;
+            --kt-sidebar-collapsed-width: 84px;
+            --kt-primary-dark: #06294f;
+            --kt-primary: #0c3b6e;
+            --kt-blue: #176fd1;
+            --kt-page-bg: #f5f8fc;
+            --kt-border: #e1e8f0;
+            --kt-text: #122b4a;
+            --kt-muted: #73839a;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+            body.kt-body {
+                margin: 0;
+                overflow-x: hidden;
+                background: var(--kt-page-bg);
+                color: var(--kt-text);
+            }
+
+        .kt-topbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1040;
+            height: var(--kt-topbar-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 27px;
+            background: linear-gradient( 110deg, #06294f 0%, #07345f 55%, #052746 100%);
+            box-shadow: 0 4px 18px rgba(3, 31, 60, 0.13);
+        }
+
+        .kt-topbar-left,
+        .kt-topbar-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .kt-topbar-left {
+            gap: 34px;
+        }
+
+        .kt-topbar-actions {
+            gap: 14px;
+        }
+
+        .kt-brand {
+            min-width: 235px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+            .kt-brand:hover,
+            .kt-brand:focus {
+                color: #ffffff;
+            }
+
+        .kt-brand-logo {
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+            filter: drop-shadow( 0 6px 10px rgba(0, 0, 0, 0.17));
+        }
+
+        .kt-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+            .kt-brand-text strong {
+                color: #ffffff;
+                font-size: 19px;
+                font-weight: 750;
+            }
+
+            .kt-brand-text small {
+                margin-top: 4px;
+                color: rgba(255, 255, 255, 0.68);
+                font-size: 11px;
+            }
+
+        .kt-sidebar-toggle {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-left: 1px solid rgba(255, 255, 255, 0.22);
+            background: transparent;
+            color: #ffffff;
+            font-size: 24px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+            .kt-sidebar-toggle:hover {
+                color: #8fc5ff;
+                transform: scale(1.05);
+            }
+
+        .kt-notification-link {
+            position: relative;
+            width: 43px;
+            height: 43px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 21px;
+            transition: background 0.2s ease;
+        }
+
+            .kt-notification-link:hover,
+            .kt-notification-link.active {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+        .kt-notification-count {
+            position: absolute;
+            top: -3px;
+            right: -2px;
+            min-width: 19px;
+            height: 19px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid #07345f;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .kt-account-button {
+            min-height: 45px;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 6px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 10px;
+            background: transparent;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+            .kt-account-button:hover,
+            .kt-account-button:focus,
+            .kt-account-button.show {
+                border-color: #ffffff;
+                background: rgba(255, 255, 255, 0.08);
+                color: #ffffff;
+            }
+
+        .kt-account-avatar {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #ffffff;
+            color: var(--kt-primary-dark);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .kt-account-dropdown {
+            width: 265px;
+            margin-top: 10px !important;
+            padding: 8px;
+            border: 1px solid var(--kt-border);
+            border-radius: 12px;
+            box-shadow: 0 14px 34px rgba(10, 50, 89, 0.17);
+        }
+
+            .kt-account-dropdown .dropdown-item {
+                padding: 10px 11px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+                .kt-account-dropdown .dropdown-item:hover {
+                    background: #f1f6fc;
+                }
+
+        .kt-shell {
+            min-height: 100vh;
+            padding-top: var(--kt-topbar-height);
+        }
+
+        .kt-sidebar {
+            position: fixed;
+            top: var(--kt-topbar-height);
+            bottom: 0;
+            left: 0;
+            z-index: 1030;
+            width: var(--kt-sidebar-width);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--kt-border);
+            background: #ffffff;
+            box-shadow: 5px 0 18px rgba(20, 55, 88, 0.035);
+            transition: width 0.25s ease, transform 0.25s ease;
+        }
+
+        .kt-sidebar-scroll {
+            flex: 1;
+            padding: 22px 13px 15px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+            .kt-sidebar-scroll::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .kt-sidebar-scroll::-webkit-scrollbar-thumb {
+                border-radius: 10px;
+                background: #d4deea;
+            }
+
+        .kt-menu-section {
+            margin: 20px 15px 8px;
+            color: #7889a0;
+            font-size: 10px;
+            font-weight: 750;
+            letter-spacing: 0.45px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+            .kt-menu-section:first-child {
+                margin-top: 0;
+            }
+
+        .kt-nav-link {
+            position: relative;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 4px;
+            padding: 10px 13px;
+            border-radius: 9px;
+            color: #203a59;
+            font-size: 13px;
+            font-weight: 520;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+        }
+
+            .kt-nav-link:hover {
+                color: #0c5ab5;
+                background: #f1f6fc;
+                transform: translateX(2px);
+            }
+
+            .kt-nav-link.active {
+                color: #0961c4;
+                background: linear-gradient( 90deg, #e9f2ff, #e2edfc);
+                font-weight: 700;
+            }
+
+            .kt-nav-link.disabled {
+                cursor: default;
+                opacity: 0.48;
+                pointer-events: none;
+            }
+
+        .kt-nav-icon {
+            width: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 17px;
+        }
+
+        .kt-nav-label {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .kt-nav-arrow {
+            color: #385674;
+            font-size: 12px;
+        }
+
+        .kt-sidebar-footer {
+            padding: 14px 15px 17px;
+            border-top: 1px solid var(--kt-border);
+            background: #ffffff;
+        }
+
+        .kt-sidebar-collapse {
+            width: 100%;
+            min-height: 43px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: #28435f;
+            font-size: 13px;
+            text-align: left;
+        }
+
+            .kt-sidebar-collapse:hover {
+                background: #f1f6fc;
+            }
+
+        .kt-collapse-icon {
+            width: 31px;
+            height: 31px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid #dce5ef;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 3px 9px rgba(15, 57, 95, 0.08);
+        }
+
+        .kt-main {
+            min-height: calc(100vh - var(--kt-topbar-height));
+            display: flex;
+            flex-direction: column;
+            margin-left: var(--kt-sidebar-width);
+            transition: margin-left 0.25s ease;
+        }
+
+        .kt-main-content {
+            flex: 1;
+            width: 100%;
+            padding: 34px 28px;
+        }
+
+        .kt-main-container {
+            width: 100%;
+            max-width: 1510px;
+            margin: 0 auto;
+        }
+
+        .kt-footer {
+            padding: 16px 28px;
+            border-top: 1px solid var(--kt-border);
+            background: rgba(255, 255, 255, 0.72);
+            color: #7b8a9e;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        body.kt-sidebar-collapsed .kt-sidebar {
+            width: var(--kt-sidebar-collapsed-width);
+        }
+
+        body.kt-sidebar-collapsed .kt-main {
+            margin-left: var(--kt-sidebar-collapsed-width);
+        }
+
+        body.kt-sidebar-collapsed .kt-menu-section,
+        body.kt-sidebar-collapsed .kt-nav-label,
+        body.kt-sidebar-collapsed .kt-nav-arrow,
+        body.kt-sidebar-collapsed .kt-collapse-label {
+            display: none;
+        }
+
+        body.kt-sidebar-collapsed .kt-sidebar-scroll {
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+
+        body.kt-sidebar-collapsed .kt-nav-link {
+            justify-content: center;
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+
+        body.kt-sidebar-collapsed .kt-nav-icon {
+            width: auto;
+            font-size: 19px;
+        }
+
+        body.kt-sidebar-collapsed .kt-sidebar-collapse {
+            justify-content: center;
+        }
+
+        body.kt-sidebar-collapsed .kt-collapse-icon i {
+            transform: rotate(180deg);
+        }
+
+        .kt-sidebar-overlay {
+            position: fixed;
+            inset: var(--kt-topbar-height) 0 0;
+            z-index: 1025;
+            display: none;
+            background: rgba(9, 31, 55, 0.48);
+        }
+
+        .kt-public-main {
+            min-height: 100vh;
+            padding-top: var(--kt-topbar-height);
+            background: var(--kt-page-bg);
+        }
+
+        .kt-login-link {
+            padding: 9px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: 9px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+            .kt-login-link:hover {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+        @@media (max-width: 1199px) {
+            .kt-main-content {
+                padding: 28px 22px;
+            }
+        }
+
+        @@media (max-width: 991.98px) {
+            :root {
+                --kt-topbar-height: 70px;
+            }
+
+            .kt-topbar {
+                height: 70px;
+                padding: 0 17px;
+            }
+
+            .kt-brand {
+                min-width: auto;
+            }
+
+            .kt-brand-logo {
+                width: 46px;
+                height: 46px;
+            }
+
+            .kt-brand-text strong {
+                font-size: 16px;
+            }
+
+            .kt-brand-text small {
+                font-size: 9px;
+            }
+
+            .kt-topbar-left {
+                gap: 15px;
+            }
+
+            .kt-sidebar-toggle {
+                width: 37px;
+                height: 37px;
+                border-left: 0;
+            }
+
+            .kt-sidebar {
+                width: min(280px, 84vw);
+                transform: translateX(-105%);
+                box-shadow: 12px 0 30px rgba(4, 35, 65, 0.16);
+            }
+
+            .kt-main,
+            body.kt-sidebar-collapsed .kt-main {
+                margin-left: 0;
+            }
+
+            body.kt-sidebar-mobile-open .kt-sidebar {
+                transform: translateX(0);
+            }
+
+            body.kt-sidebar-mobile-open .kt-sidebar-overlay {
+                display: block;
+            }
+
+            body.kt-sidebar-collapsed .kt-sidebar {
+                width: min(280px, 84vw);
+            }
+
+            body.kt-sidebar-collapsed .kt-menu-section {
+                display: block;
+            }
+
+            body.kt-sidebar-collapsed .kt-nav-label,
+            body.kt-sidebar-collapsed .kt-nav-arrow,
+            body.kt-sidebar-collapsed .kt-collapse-label {
+                display: block;
+            }
+
+            body.kt-sidebar-collapsed .kt-nav-link {
+                justify-content: flex-start;
+                padding-right: 13px;
+                padding-left: 13px;
+            }
+
+            .kt-sidebar-footer {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .kt-brand-text {
+                display: none;
+            }
+
+            .kt-topbar-actions {
+                gap: 7px;
+            }
+
+            .kt-account-button {
+                padding-right: 9px;
+                padding-left: 9px;
+            }
+
+            .kt-account-label {
+                display: none;
+            }
+
+            .kt-main-content {
+                padding: 22px 13px;
+            }
+
+            .kt-notification-link {
+                width: 39px;
+                height: 39px;
+            }
+        }
+
+    </style>
+</head>
+
+<body class="kt-body">
+
+    @if (girisYapildiMi)
+    {
+        <header class="kt-topbar">
+
+            <div class="kt-topbar-left">
+
+                <a class="kt-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <svg class="kt-brand-logo"
+                         viewBox="0 0 64 64"
+                         xmlns="http://www.w3.org/2000/svg"
+                         role="img"
+                         aria-label="Kurum Tahsilat Sistemi logosu">
+
+                        <rect x="3"
+                              y="3"
+                              width="58"
+                              height="58"
+                              rx="17"
+                              fill="#ffffff" />
+
+                        <path d="M32 10L49 16V29C49 40 42 50 32 55C22 50 15 40 15 29V16L32 10Z"
+                              fill="#e7f0fa" />
+
+                        <path d="M22 21V43H28V35L36 43H44L33 32L43 21H35L28 29V21H22Z"
+                              fill="#123b6d" />
+
+                        <circle cx="45"
+                                cy="44"
+                                r="8"
+                                fill="#1677e8" />
+
+                        <path d="M41.5 44L44 46.5L48.5 41.5"
+                              fill="none"
+                              stroke="#ffffff"
+                              stroke-width="2.4"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+
+                    <span class="kt-brand-text">
+                        <strong>Kurum Tahsilat</strong>
+                        <small>Yönetim Sistemi</small>
+                    </span>
+
+                </a>
+
+                <button type="button"
+                        class="kt-sidebar-toggle"
+                        id="ktSidebarToggle"
+                        aria-label="Menüyü aç veya kapat"
+                        title="Menüyü aç veya kapat">
+
+                    <i class="bi bi-list"></i>
+                </button>
+
+            </div>
+
+            <div class="kt-topbar-actions">
+
+                <a class="kt-notification-link
+                              @(controller == "Bildirimler"
+                                                 ? "active"
+                                                 : "")"
+               asp-controller="Bildirimler"
+               asp-action="Index"
+               title="Bildirimler"
+               aria-label="Bildirimler">
+
+                    <i class="bi bi-bell"></i>
+
+                @if (okunmamisBildirimSayisi > 0)
+                    {
+                        <span class="kt-notification-count">
+                            @(okunmamisBildirimSayisi > 99
+                                                ? "99+"
+                                                : okunmamisBildirimSayisi.ToString())
+                </span>
+                                }
+
+                </a>
+
+                <div class="dropdown">
+
+                    <button type="button"
+                            class="kt-account-button
+                                       dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+
+                        <span class="kt-account-avatar">
+                            @kullaniciHarfi
+                        </span>
+
+                        <span class="kt-account-label">
+                            Hesabım
+                        </span>
+
+                    </button>
+
+                    <ul class="dropdown-menu
+                                   dropdown-menu-end
+                                   kt-account-dropdown">
+
+                        <li>
+                            <div class="px-2 py-2">
+
+                                <div class="small text-muted">
+                                    Oturum Açan Kullanıcı
+                                </div>
+
+                                <div class="fw-semibold
+                                                kullanici-email">
+                                    @kullaniciAdi
+                                </div>
+
+                                <div class="mt-2">
+                                    @if (adminMi)
+                                    {
+                                        <span class="badge
+                                                             bg-warning
+                                                             text-dark">
+                                            Admin
+                                        </span>
+                                    }
+                                    else if (kullaniciMi)
+                                    {
+                                        <span class="badge
+                                                             bg-info
+                                                             text-dark">
+                                            Kullanıcı
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge
+                                                             bg-secondary">
+                                            Rol Tanımlanmamış
+                                        </span>
+                                    }
+                            </div>
+
+                        </div>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item
+                                      @(controller == "Account" &&
+                                                                   action == "Profil"
+                                                                       ? "active"
+                                                                       : "")"
+                                                                            asp-controller="Account"
+                                                                            asp-action="Profil">
+
+                            <i class="bi bi-person me-2"></i>
+                            Profilim
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item
+                                      @(controller == "Account" &&
+                                                                   action == "SifreDegistir"
+                                                                       ? "active"
+                                                                       : "")"
+                                                                            asp-controller="Account"
+                                                                            asp-action="SifreDegistir">
+
+                            <i class="bi bi-key me-2"></i>
+                            Şifre Değiştir
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+
+                    <li>
+                        <form asp-controller="Account"
+                              asp-action="Logout"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="dropdown-item
+                                               text-danger">
+
+                                <i class="bi
+                                              bi-box-arrow-right
+                                              me-2"></i>
+
+                                Çıkış Yap
+                            </button>
+
+                        </form>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <div class="kt-shell">
+
+        <aside class="kt-sidebar"
+               id="ktSidebar">
+
+            <div class="kt-sidebar-scroll">
+
+                <nav>
+
+                    <a class="kt-nav-link
+                                  @(controller == "Home"
+                                                             ? "active"
+                                                             : "")"
+                       asp-controller="Home"
+                       asp-action="Index"
+                       title="Ana Sayfa">
+
+                            <span class="kt-nav-icon">
+                                <i class="bi bi-house-door"></i>
+                            </span>
+
+                            <span class="kt-nav-label">
+                                Ana Sayfa
+                            </span>
+
+                        </a>
+
+                    @if (adminMi)
+                        {
+                            <div class="kt-menu-section">
+                                Yönetim
+                            </div>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Kurumlar"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Kurumlar"
+                                                                              asp-action="Index"
+                                                                              title="Kurum Yönetimi">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-buildings"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Kurum Yönetimi
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Musteriler"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Musteriler"
+                                                                              asp-action="Index"
+                                                                              title="Müşteri Yönetimi">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-people"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Müşteri Yönetimi
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "TahsilatUrunleri"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="TahsilatUrunleri"
+                                                                              asp-action="Index"
+                                                                              title="Tahsilat Ürünleri">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-box-seam"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Tahsilat Ürünleri
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <div class="kt-menu-section">
+                                Borç İşlemleri
+                            </div>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Borclar" &&
+                                                                       action == "Sorgula"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Borclar"
+                                                                              asp-action="Sorgula"
+                                                                              title="Borç Yönetimi">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Borç Yönetimi
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Borclar" &&
+                                                                       action == "Sorgula"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Borclar"
+                                                                              asp-action="Sorgula"
+                                                                              title="Borç Sorgulama">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-search"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Borç Sorgulama
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "BorcDosyalari"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="BorcDosyalari"
+                                                                              asp-action="Yukle"
+                                                                              title="Borç Dosyası">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-folder2-open"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Borç Dosyası
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Tahsilatlar"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Tahsilatlar"
+                                                                              asp-action="Gecmis"
+                                                                              title="Tahsilat Geçmişi">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-clock-history"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Tahsilat Geçmişi
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <div class="kt-menu-section">
+                                Analiz ve Raporlar
+                            </div>
+
+                            <a class="kt-nav-link
+                                              @(controller == "MakineOgrenmesi"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="MakineOgrenmesi"
+                                                                              asp-action="Index"
+                                                                              title="ML Analizi">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    ML Analizi
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Raporlar"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Raporlar"
+                                                                              asp-action="Index"
+                                                                              title="Raporlar">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-file-earmark-bar-graph"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Raporlar
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <div class="kt-menu-section">
+                                Sistem
+                            </div>
+
+                            <a class="kt-nav-link
+                                              @(controller == "AuditLogs"
+                                                                         ? "active"
+                                                                         : "")"
+                       asp-controller="AuditLogs"
+                       asp-action="Index"
+                       title="İşlem Logları">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-journal-text"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    İşlem Logları
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link disabled"
+                               href="#"
+                               aria-disabled="true"
+                               title="Sistem Ayarları">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-gear"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Sistem Ayarları
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+                                        }
+                        else
+                        {
+                            <div class="kt-menu-section">
+                                Borç İşlemleri
+                            </div>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Borclar" &&
+                                                                       action == "Borclarim"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Borclar"
+                                                                              asp-action="Borclarim"
+                                                                              title="Borçlarım">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-receipt"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Borçlarım
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Tahsilatlar"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Tahsilatlar"
+                                                                              asp-action="Gecmis"
+                                                                              title="Tahsilat Geçmişim">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-clock-history"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Tahsilat Geçmişim
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <div class="kt-menu-section">
+                                Hesabım
+                            </div>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Bildirimler"
+                                                                         ? "active"
+                                                                         : "")"
+                                                                              asp-controller="Bildirimler"
+                                                                              asp-action="Index"
+                                                                              title="Bildirimler">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-bell"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Bildirimler
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+
+                            <a class="kt-nav-link
+                                              @(controller == "Account" &&
+                                                                       action == "Profil"
+                                                                         ? "active"
+                                                                         : "")"
+                       asp-controller="Account"
+                       asp-action="Profil"
+                       title="Profilim">
+
+                                <span class="kt-nav-icon">
+                                    <i class="bi bi-person-circle"></i>
+                                </span>
+
+                                <span class="kt-nav-label">
+                                    Profilim
+                                </span>
+
+                                <span class="kt-nav-arrow">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+
+                            </a>
+                                        }
+
+                    </nav>
+
+                </div>
+
+                <div class="kt-sidebar-footer">
+
+                    <button type="button"
+                            class="kt-sidebar-collapse"
+                            id="ktSidebarCollapse">
+
+                        <span class="kt-collapse-icon">
+                            <i class="bi bi-chevron-left"></i>
+                        </span>
+
+                        <span class="kt-collapse-label">
+                            Menüyü Daralt
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </aside>
+
+            <div class="kt-sidebar-overlay"
+                 id="ktSidebarOverlay">
+            </div>
+
+            <main class="kt-main">
+
+                <div class="kt-main-content">
+
+                    <div class="kt-main-container">
+                        @RenderBody()
+                    </div>
+
+                </div>
+
+                <footer class="kt-footer">
+                    &copy; 2026 Kurum Tahsilat Sistemi.
+                    Tüm hakları saklıdır.
+                </footer>
+
+            </main>
+
+        </div>
+    }
+    else
+    {
+        <header class="kt-topbar">
+
+            <a class="kt-brand"
+               asp-controller="Account"
+               asp-action="Login">
+
+                <svg class="kt-brand-logo"
+                     viewBox="0 0 64 64"
+                     xmlns="http://www.w3.org/2000/svg">
+
+                    <rect x="3"
+                          y="3"
+                          width="58"
+                          height="58"
+                          rx="17"
+                          fill="#ffffff" />
+
+                    <path d="M22 21V43H28V35L36 43H44L33 32L43 21H35L28 29V21H22Z"
+                          fill="#123b6d" />
+
+                    <circle cx="45"
+                            cy="44"
+                            r="8"
+                            fill="#1677e8" />
+                </svg>
+
+                <span class="kt-brand-text">
+                    <strong>Kurum Tahsilat</strong>
+                    <small>Yönetim Sistemi</small>
+                </span>
+
+            </a>
+
+            <a asp-controller="Account"
+               asp-action="Login"
+               class="kt-login-link">
+
+                Giriş Yap
+            </a>
+
+        </header>
+
+        <main class="kt-public-main">
+
+            <div class="container py-4">
+                @RenderBody()
+            </div>
+
+        </main>
+    }
+
+    @if (girisYapildiMi)
+    {
+        <button type="button"
+                class="ai-fab"
+                id="aiFabButton"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#aiAsistanPanel"
+                aria-controls="aiAsistanPanel"
+                aria-label="AI Asistanı Aç">
+
+            <span class="ai-fab-status"></span>
+
+            <svg viewBox="0 0 64 64"
+                 xmlns="http://www.w3.org/2000/svg"
+                 aria-hidden="true">
+
+                <circle cx="32"
+                        cy="32"
+                        r="29"
+                        fill="#ffffff" />
+
+                <rect x="15"
+                      y="22"
+                      width="34"
+                      height="27"
+                      rx="11"
+                      fill="#1677e8" />
+
+                <circle cx="26"
+                        cy="34"
+                        r="3"
+                        fill="#ffffff" />
+
+                <circle cx="38"
+                        cy="34"
+                        r="3"
+                        fill="#ffffff" />
+
+                <path d="M25 42C29 45 35 45 39 42"
+                      fill="none"
+                      stroke="#ffffff"
+                      stroke-width="2.5"
+                      stroke-linecap="round" />
+
+                <path d="M32 14V21"
+                      stroke="#1677e8"
+                      stroke-width="3"
+                      stroke-linecap="round" />
+
+                <circle cx="32"
+                        cy="12"
+                        r="4"
+                        fill="#1677e8" />
+            </svg>
+        </button>
+
+        <div class="offcanvas offcanvas-end ai-widget-panel"
+             tabindex="-1"
+             id="aiAsistanPanel"
+             aria-labelledby="aiAsistanPanelBaslik">
+
+            <div class="offcanvas-header ai-widget-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="ai-widget-avatar">
+                        AI
+                    </div>
+
+                    <div>
+                        <h5 class="offcanvas-title mb-1"
+                            id="aiAsistanPanelBaslik">
+                            AI Tahsilat Asistanı
+                        </h5>
+
+                        <div class="ai-widget-status">
+                            <span class="ai-widget-status-dot"></span>
+                            Yerel AI asistan
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <button type="button"
+                            id="aiWidgetTemizle"
+                            class="btn btn-sm btn-outline-light">
+                        Temizle
+                    </button>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="offcanvas"
+                            aria-label="Kapat">
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="offcanvas-body ai-widget-body">
+
+                <div class="ai-widget-messages"
+                     id="aiWidgetMesajlar">
+
+                    <div class="ai-widget-welcome">
+
+                        <div class="ai-widget-welcome-icon">
+                            AI
+                        </div>
+
+                        <h6>Nasıl yardımcı olabilirim?</h6>
+
+                        <p>
+                            Borç sorgulama, ödeme, dekont ve sistem
+                            kullanımı hakkında soru sorabilirsiniz.
+                        </p>
+
+                        <button type="button"
+                                class="ai-widget-example"
+                                data-ai-message="Borç sorgulama nasıl yapılır?">
+                            Borç sorgulama nasıl yapılır?
+                        </button>
+
+                        <button type="button"
+                                class="ai-widget-example"
+                                data-ai-message="Dekontuma nereden ulaşabilirim?">
+                            Dekontuma nereden ulaşabilirim?
+                        </button>
+
+                        <button type="button"
+                                class="ai-widget-example"
+                                data-ai-message="Tahsilatı kim iptal edebilir?">
+                            Tahsilatı kim iptal edebilir?
+                        </button>
+
+                    </div>
+                </div>
+
+                <div class="ai-widget-input-area">
+
+                    <!--
+                        Formun normal şekilde gönderilmesi engelleniyor.
+                        Mesaj yalnızca JavaScript fetch ile gönderilecek.
+                    -->
+                    <form id="aiWidgetForm"
+                          onsubmit="return false;">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="ai-widget-input-group">
+
+                            <textarea name="mesaj"
+                                  id="aiWidgetInput"
+                                  class="form-control"
+                                  rows="2"
+                                  maxlength="500"
+                                  placeholder="Mesajınızı yazınız..."></textarea>
+
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    id="aiWidgetGonder">
+                                Gönder
+                            </button>
+
+                        </div>
+
+                        <small class="text-muted d-block mt-2">
+                            Parola, kart numarası veya CVV paylaşmayınız.
+                        </small>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    @if (girisYapildiMi)
+    {
+        <script>
+            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+                    const panel =
+                        document.getElementById(
+                            "aiAsistanPanel"
+                        );
+
+                    const aiFabButton =
+                        document.getElementById(
+                            "aiFabButton"
+                        );
+
+                    const mesajlarAlani =
+                        document.getElementById(
+                            "aiWidgetMesajlar"
+                        );
+
+                    const form =
+                        document.getElementById(
+                            "aiWidgetForm"
+                        );
+
+                    const input =
+                        document.getElementById(
+                            "aiWidgetInput"
+                        );
+
+                    const gonderButonu =
+                        document.getElementById(
+                            "aiWidgetGonder"
+                        );
+
+                    const temizleButonu =
+                        document.getElementById(
+                            "aiWidgetTemizle"
+                        );
+
+                    if (!panel ||
+                        !aiFabButton ||
+                        !mesajlarAlani ||
+                        !form ||
+                        !input ||
+                        !gonderButonu ||
+                        !temizleButonu) {
+
+                        return;
+                    }
+
+                    const gecmisUrl =
+                        '@Url.Action(
+                                                                                                                                                                                                    "PopupGecmis",
+                                                                                                                                                                                                    "AiAsistan")';
+
+        const mesajUrl =
+            '@Url.Action(
+                                                                                                                                                                        "PopupMesaj",
+                                                                                                                                                                        "AiAsistan")';
+
+        const temizleUrl =
+            '@Url.Action(
+                                                                                                                                                                        "PopupTemizle",
+                                                                                                                                                                        "AiAsistan")';
+
+        function saatOlustur() {
+            return new Date()
+                .toLocaleTimeString(
+                    "tr-TR",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                );
+        }
+
+                    function ornekSorulariBagla() {
+                        mesajlarAlani
+                            .querySelectorAll(
+                                ".ai-widget-example"
+                            )
+                            .forEach(function (buton) {
+
+                                buton.addEventListener(
+                                    "click",
+                                    function () {
+
+                                        input.value =
+                                            buton.dataset
+                                                .aiMessage || "";
+
+                                        input.focus();
+                                    }
+                                );
+                            });
+                    }
+
+                    function welcomeGoster() {
+                        mesajlarAlani.innerHTML = `
+                            <div class="ai-widget-welcome">
+
+                                <div class="ai-widget-welcome-icon">
+                                    AI
+                                </div>
+
+                                <h6>
+                                    Nasıl yardımcı olabilirim?
+                                </h6>
+
+                                <p>
+                                    Borç sorgulama, ödeme, dekont ve
+                                    sistem kullanımı hakkında soru
+                                    sorabilirsiniz.
+                                </p>
+
+                                <button type="button"
+                                        class="ai-widget-example"
+                                        data-ai-message="Borç sorgulama nasıl yapılır?">
+                                    Borç sorgulama nasıl yapılır?
+                                </button>
+
+                                <button type="button"
+                                        class="ai-widget-example"
+                                        data-ai-message="Dekontuma nereden ulaşabilirim?">
+                                    Dekontuma nereden ulaşabilirim?
+                                </button>
+
+                                <button type="button"
+                                        class="ai-widget-example"
+                                        data-ai-message="Tahsilatı kim iptal edebilir?">
+                                    Tahsilatı kim iptal edebilir?
+                                </button>
+
+                            </div>
+                        `;
+
+                        ornekSorulariBagla();
+                    }
+
+                    function mesajEkle(
+                        rol,
+                        icerik,
+                        zaman) {
+
+                        const satir =
+                            document.createElement("div");
+
+                        satir.className =
+                            "ai-widget-row " +
+                            (rol === "user"
+                                ? "user"
+                                : "assistant");
+
+                        if (rol !== "user") {
+                            const avatar =
+                                document.createElement(
+                                    "div"
+                                );
+
+                            avatar.className =
+                                "ai-widget-mini-avatar";
+
+                            avatar.textContent = "AI";
+
+                            satir.appendChild(avatar);
+                        }
+
+                        const balon =
+                            document.createElement("div");
+
+                        balon.className =
+                            "ai-widget-bubble";
+
+                        const metin =
+                            document.createElement("div");
+
+                        metin.textContent =
+                            icerik || "";
+
+                        const saat =
+                            document.createElement("div");
+
+                        saat.className =
+                            "ai-widget-time";
+
+                        saat.textContent =
+                            zaman || "";
+
+                        balon.appendChild(metin);
+                        balon.appendChild(saat);
+
+                        satir.appendChild(balon);
+
+                        mesajlarAlani.appendChild(
+                            satir
+                        );
+
+                        mesajlarAlani.scrollTop =
+                            mesajlarAlani.scrollHeight;
+
+                        return satir;
+                    }
+
+                    async function gecmisiYukle() {
+                        mesajlarAlani.innerHTML = `
+                            <div class="text-center
+                                        text-muted py-5">
+                                Sohbet yükleniyor...
+                            </div>
+                        `;
+
+                        try {
+                            const response =
+                                await fetch(
+                                    gecmisUrl,
+                                    {
+                                        method: "GET",
+                                        headers: {
+                                            "X-Requested-With":
+                                                "XMLHttpRequest"
+                                        }
+                                    }
+                                );
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    "Geçmiş yüklenemedi."
+                                );
+                            }
+
+                            const mesajlar =
+                                await response.json();
+
+                            mesajlarAlani.innerHTML = "";
+
+                            if (!mesajlar.length) {
+                                welcomeGoster();
+                                return;
+                            }
+
+                            mesajlar.forEach(
+                                function (mesaj) {
+                                    mesajEkle(
+                                        mesaj.rol,
+                                        mesaj.icerik,
+                                        mesaj.zaman
+                                    );
+                                }
+                            );
+                        }
+                        catch (error) {
+                            mesajlarAlani.innerHTML = "";
+
+                            mesajEkle(
+                                "assistant",
+                                "Sohbet geçmişi yüklenemedi.",
+                                ""
+                            );
+
+                            console.error(error);
+                        }
+                    }
+
+                    async function mesajGonder() {
+                        const mesaj =
+                            input.value.trim();
+
+                        if (!mesaj ||
+                            gonderButonu.disabled) {
+
+                            input.focus();
+                            return;
+                        }
+
+                        const welcome =
+                            mesajlarAlani.querySelector(
+                                ".ai-widget-welcome"
+                            );
+
+                        if (welcome) {
+                            welcome.remove();
+                        }
+
+                        mesajEkle(
+                            "user",
+                            mesaj,
+                            saatOlustur()
+                        );
+
+                        input.value = "";
+
+                        gonderButonu.disabled = true;
+                        gonderButonu.textContent = "...";
+
+                        const beklemeSatiri =
+                            mesajEkle(
+                                "assistant",
+                                "Yanıt hazırlanıyor...",
+                                ""
+                            );
+
+                        try {
+                            const formData =
+                                new FormData(form);
+
+                            formData.set(
+                                "mesaj",
+                                mesaj
+                            );
+
+                            const response =
+                                await fetch(
+                                    mesajUrl,
+                                    {
+                                        method: "POST",
+                                        body: formData,
+                                        headers: {
+                                            "X-Requested-With":
+                                                "XMLHttpRequest"
+                                        }
+                                    }
+                                );
+
+                            const contentType =
+                                response.headers.get(
+                                    "content-type"
+                                ) || "";
+
+                            if (!contentType.includes(
+                                "application/json")) {
+
+                                throw new Error(
+                                    "Sunucudan JSON yanıtı alınamadı."
+                                );
+                            }
+
+                            const sonuc =
+                                await response.json();
+
+                            beklemeSatiri.remove();
+
+                            if (!response.ok) {
+                                mesajEkle(
+                                    "assistant",
+                                    sonuc.hata ||
+                                    "Mesaj gönderilemedi.",
+                                    ""
+                                );
+
+                                return;
+                            }
+
+                            mesajEkle(
+                                "assistant",
+                                sonuc.cevap,
+                                sonuc.zaman
+                            );
+                        }
+                        catch (error) {
+                            beklemeSatiri.remove();
+
+                            mesajEkle(
+                                "assistant",
+                                "AI servisine ulaşılamadı. " +
+                                "Ollama uygulamasının açık " +
+                                "olduğunu kontrol ediniz.",
+                                ""
+                            );
+
+                            console.error(error);
+                        }
+                        finally {
+                            gonderButonu.disabled = false;
+                            gonderButonu.textContent =
+                                "Gönder";
+
+                            input.focus();
+                        }
+                    }
+
+                    panel.addEventListener(
+                        "show.bs.offcanvas",
+                        function () {
+                            aiFabButton.classList.add(
+                                "ai-fab-gizli"
+                            );
+                        }
+                    );
+
+                    panel.addEventListener(
+                        "shown.bs.offcanvas",
+                        function () {
+                            gecmisiYukle();
+                            input.focus();
+                        }
+                    );
+
+                    panel.addEventListener(
+                        "hidden.bs.offcanvas",
+                        function () {
+                            aiFabButton.classList.remove(
+                                "ai-fab-gizli"
+                            );
+                        }
+                    );
+
+                    gonderButonu.addEventListener(
+                        "click",
+                        function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            mesajGonder();
+                        }
+                    );
+
+                    input.addEventListener(
+                        "keydown",
+                        function (event) {
+
+                            if (event.key === "Enter" &&
+                                !event.shiftKey) {
+
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                mesajGonder();
+                            }
+                        }
+                    );
+
+                    temizleButonu.addEventListener(
+                        "click",
+                        async function (event) {
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            if (!confirm(
+                                "Sohbet geçmişi temizlensin mi?")) {
+
+                                return;
+                            }
+
+                            try {
+                                const formData =
+                                    new FormData(form);
+
+                                const response =
+                                    await fetch(
+                                        temizleUrl,
+                                        {
+                                            method: "POST",
+                                            body: formData,
+                                            headers: {
+                                                "X-Requested-With":
+                                                    "XMLHttpRequest"
+                                            }
+                                        }
+                                    );
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        "Sohbet temizlenemedi."
+                                    );
+                                }
+
+                                welcomeGoster();
+                            }
+                            catch (error) {
+                                alert(
+                                    "Sohbet geçmişi temizlenemedi."
+                                );
+
+                                console.error(error);
+                            }
+                        }
+                    );
+
+                    ornekSorulariBagla();
+                }
+            );
+        </script>
+        }
+
+
+    @if (girisYapildiMi)
+    {
+        <script>
+            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+                    const body =
+                        document.body;
+
+                    const topToggle =
+                        document.getElementById(
+                            "ktSidebarToggle");
+
+                    const bottomToggle =
+                        document.getElementById(
+                            "ktSidebarCollapse");
+
+                    const overlay =
+                        document.getElementById(
+                            "ktSidebarOverlay");
+
+                    const mobileMedia =
+                        window.matchMedia(
+                            "(max-width: 991.98px)");
+
+                    function masaustuDurumunuYukle() {
+                        if (mobileMedia.matches) {
+                            body.classList.remove(
+                                "kt-sidebar-collapsed");
+
+                            return;
+                        }
+
+                        const daraltildiMi =
+                            localStorage.getItem(
+                                "ktSidebarCollapsed")
+                            === "true";
+
+                        body.classList.toggle(
+                            "kt-sidebar-collapsed",
+                            daraltildiMi);
+                    }
+
+                    function menuDurumunuDegistir() {
+                        if (mobileMedia.matches) {
+                            body.classList.toggle(
+                                "kt-sidebar-mobile-open");
+
+                            return;
+                        }
+
+                        body.classList.toggle(
+                            "kt-sidebar-collapsed");
+
+                        localStorage.setItem(
+                            "ktSidebarCollapsed",
+                            body.classList.contains(
+                                "kt-sidebar-collapsed")
+                                ? "true"
+                                : "false");
+                    }
+
+                    function mobilMenuyuKapat() {
+                        body.classList.remove(
+                            "kt-sidebar-mobile-open");
+                    }
+
+                    if (topToggle) {
+                        topToggle.addEventListener(
+                            "click",
+                            menuDurumunuDegistir);
+                    }
+
+                    if (bottomToggle) {
+                        bottomToggle.addEventListener(
+                            "click",
+                            menuDurumunuDegistir);
+                    }
+
+                    if (overlay) {
+                        overlay.addEventListener(
+                            "click",
+                            mobilMenuyuKapat);
+                    }
+
+                    document
+                        .querySelectorAll(
+                            ".kt-sidebar .kt-nav-link")
+                        .forEach(function (link) {
+
+                            link.addEventListener(
+                                "click",
+                                function () {
+
+                                    if (mobileMedia.matches) {
+                                        mobilMenuyuKapat();
+                                    }
+                                });
+                        });
+
+                    window.addEventListener(
+                        "resize",
+                        function () {
+
+                            if (!mobileMedia.matches) {
+                                body.classList.remove(
+                                    "kt-sidebar-mobile-open");
+                            }
+
+                            masaustuDurumunuYukle();
+                        });
+
+                    masaustuDurumunuYukle();
+                });
+        </script>
+    }
+
+    @await RenderSectionAsync(
+    "Scripts",
+        required: false)
+
+</body>
+</html>

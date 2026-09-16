@@ -1,0 +1,232 @@
+﻿@model IEnumerable<KurumTahsilatSistemi.Models.TahsilatUrunu>
+
+@{
+    ViewData["Title"] = "Tahsilat Ürünleri";
+}
+
+<div class="d-flex flex-column flex-md-row
+            justify-content-between align-items-md-center
+            gap-3 mb-4">
+
+    <div>
+        <h2 class="mb-2">Tahsilat Ürünleri</h2>
+
+        <p class="text-muted mb-0">
+            Kurumlara bağlı tahsilat ürünlerini görüntüleyebilir,
+            yeni ürün ekleyebilir ve mevcut ürünleri yönetebilirsiniz.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+        Yeni Tahsilat Ürünü
+    </a>
+</div>
+
+@if (TempData["BasariMesaji"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["BasariMesaji"]
+    </div>
+}
+
+@if (TempData["HataMesaji"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["HataMesaji"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+
+            <div class="urun-empty-icon mb-3">
+                TÜ
+            </div>
+
+            <h4>Henüz tahsilat ürünü bulunmuyor</h4>
+
+            <p class="text-muted">
+                Borç aktarımı yapılabilmesi için bir kuruma bağlı
+                tahsilat ürünü oluşturulmalıdır.
+            </p>
+
+            <a asp-action="Create"
+               class="btn btn-primary">
+                İlk Tahsilat Ürününü Ekle
+            </a>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle urun-table">
+            <thead>
+                <tr>
+                    <th>Ürün Bilgisi</th>
+                    <th>Ürün Kodu</th>
+                    <th>Bağlı Kurum</th>
+                    <th class="text-center">İşlemler</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var urun in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+
+                                <div class="urun-avatar">
+                                    @{
+                                        var urunHarfi =
+                                        string.IsNullOrWhiteSpace(urun.UrunAdi)
+                                        ? "T"
+                                        : urun.UrunAdi.Substring(0, 1).ToUpper();
+                                    }
+
+                                    @urunHarfi
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        @urun.UrunAdi
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        Ürün No: @urun.Id
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="urun-kodu">
+                                @urun.UrunKodu
+                            </span>
+                        </td>
+
+                        <td>
+                            @if (urun.Kurum != null)
+                            {
+                                <div class="fw-semibold">
+                                    @urun.Kurum.KurumAdi
+                                </div>
+
+                                <div class="small text-muted">
+                                    Kurum Kodu: @urun.Kurum.KurumKodu
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-danger">
+                                    Kurum bulunamadı
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-wrap
+                                                justify-content-center gap-2">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@urun.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Detay
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@urun.Id"
+                                   class="btn btn-primary btn-sm">
+                                    Düzenle
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@urun.Id"
+                                   class="btn btn-danger btn-sm">
+                                    Sil
+                                </a>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<style>
+    .urun-table {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+        .urun-table th:nth-child(1) {
+            width: 28%;
+        }
+
+        .urun-table th:nth-child(2) {
+            width: 18%;
+        }
+
+        .urun-table th:nth-child(3) {
+            width: 30%;
+        }
+
+        .urun-table th:nth-child(4) {
+            width: 24%;
+        }
+
+    .urun-avatar {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background-color: #e6f5f1;
+        color: #117b68;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .urun-kodu {
+        display: inline-block;
+        padding: 6px 10px;
+        border: 1px solid #dce4ee;
+        border-radius: 7px;
+        background-color: #f8fafc;
+        color: #344054;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .urun-empty-icon {
+        width: 68px;
+        height: 68px;
+        margin-right: auto;
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background-color: #e6f5f1;
+        color: #117b68;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 768px) {
+        .urun-table {
+            min-width: 760px;
+            table-layout: auto;
+        }
+    }
+</style>

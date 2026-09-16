@@ -1,0 +1,429 @@
+﻿@model KurumTahsilatSistemi.ViewModels.AiChatViewModel
+
+@{
+    ViewData["Title"] = "AI Asistan";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center
+                    gap-3 mb-4">
+
+            <div>
+                <h2 class="mb-2">
+                    AI Tahsilat Asistanı
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Borç sorgulama, ödeme ve sistem kullanımı hakkında
+                    yardım alabilirsiniz.
+                </p>
+            </div>
+
+            @if (Model.Mesajlar.Any())
+            {
+                <form asp-action="Temizle"
+                      method="post"
+                      onsubmit="return confirm('Sohbet geçmişi temizlensin mi?')">
+
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Sohbeti Temizle
+                    </button>
+                </form>
+            }
+
+        </div>
+
+        <div class="card ai-chat-card">
+
+            <div class="card-header d-flex align-items-center gap-3">
+
+                <div class="ai-avatar">
+                    AI
+                </div>
+
+                <div>
+                    <div>Akıllı Yardım Asistanı</div>
+
+                    <small class="text-muted fw-normal">
+                        Önceki mesajları hatırlayarak cevap verir
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="sohbet-alani"
+                     id="sohbetAlani">
+
+                    @if (!Model.Mesajlar.Any())
+                    {
+                        <div class="ai-welcome">
+
+                            <div class="welcome-icon">
+                                AI
+                            </div>
+
+                            <h5>Nasıl yardımcı olabilirim?</h5>
+
+                            <p>
+                                Örneğin “Borç sorgulama nasıl yapılır?”
+                                veya “Dekontuma nereden ulaşabilirim?”
+                                yazabilirsiniz.
+                            </p>
+
+                            <div class="ornek-sorular">
+
+                                <button type="button"
+                                        class="ornek-soru"
+                                        data-message="Borç sorgulama nasıl yapılır?">
+                                    Borç sorgulama nasıl yapılır?
+                                </button>
+
+                                <button type="button"
+                                        class="ornek-soru"
+                                        data-message="Tahsilatı kim iptal edebilir?">
+                                    Tahsilatı kim iptal edebilir?
+                                </button>
+
+                                <button type="button"
+                                        class="ornek-soru"
+                                        data-message="Dekontuma nereden ulaşabilirim?">
+                                    Dekontuma nereden ulaşabilirim?
+                                </button>
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var mesaj in Model.Mesajlar)
+                        {
+                            var kullaniciMesaji =
+                            mesaj.Rol == "user";
+
+                            <div class="mesaj-satiri
+                                                @(kullaniciMesaji
+                                                                             ? "kullanici-satiri"
+                                                                             : "asistan-satiri")">
+
+                        @if (!kullaniciMesaji)
+                                {
+                                    <div class="mesaj-avatar">
+                                        AI
+                                    </div>
+                                }
+
+                            <div class="mesaj-balonu
+                                                @(kullaniciMesaji
+                                                                                 ? "kullanici-mesaji"
+                                                                                 : "asistan-mesaji")">
+
+                            <div class="mesaj-icerigi">
+                                @mesaj.Icerik
+                            </div>
+
+                                    <div class="mesaj-zamani">
+                                        @(mesaj.Zaman.ToString("HH:mm"))
+                                    </div>
+
+                                </div>
+
+                            </div>
+                                        }
+                    }
+
+                </div>
+
+                <div class="mesaj-form-alani">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <form asp-action="Index"
+                          method="post"
+                          id="mesajFormu">
+
+                        <label asp-for="Mesaj"
+                               class="form-label">
+                        </label>
+
+                        <div class="mesaj-giris-grubu">
+
+                            <textarea asp-for="Mesaj"
+                                      class="form-control"
+                                      rows="2"
+                                      id="mesajInput"
+                                      placeholder="Sorunuzu yazınız..."></textarea>
+
+                            <button type="submit"
+                                    class="btn btn-primary mesaj-gonder-buton"
+                                    id="gonderButonu">
+
+                                Gönder
+                            </button>
+
+                        </div>
+
+                        <span asp-validation-for="Mesaj"
+                              class="text-danger">
+                        </span>
+
+                        <small class="text-muted d-block mt-2">
+                            Kart numarası, CVV, parola veya kişisel
+                            güvenlik bilgilerinizi paylaşmayınız.
+                        </small>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .ai-chat-card {
+        overflow: hidden;
+    }
+
+    .ai-avatar {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #123b6d, #1677e8);
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .sohbet-alani {
+        height: 480px;
+        padding: 24px;
+        overflow-y: auto;
+        background-color: #f6f8fb;
+    }
+
+    .ai-welcome {
+        max-width: 620px;
+        margin: 55px auto;
+        text-align: center;
+    }
+
+    .welcome-icon {
+        width: 62px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 17px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #123b6d, #1677e8);
+        color: white;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .ai-welcome h5 {
+        margin-bottom: 8px;
+        color: #123b6d;
+    }
+
+    .ai-welcome p {
+        margin-bottom: 22px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .ornek-sorular {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ornek-soru {
+        padding: 8px 11px;
+        border: 1px solid #cddff1;
+        border-radius: 9px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+        .ornek-soru:hover {
+            border-color: #1677e8;
+            background-color: #f0f6fd;
+        }
+
+    .mesaj-satiri {
+        display: flex;
+        align-items: flex-end;
+        gap: 9px;
+        margin-bottom: 17px;
+    }
+
+    .kullanici-satiri {
+        justify-content: flex-end;
+    }
+
+    .asistan-satiri {
+        justify-content: flex-start;
+    }
+
+    .mesaj-avatar {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 10px;
+        background-color: #123b6d;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .mesaj-balonu {
+        max-width: 72%;
+        padding: 12px 15px 8px;
+        border-radius: 14px;
+        box-shadow: 0 3px 10px rgba(18, 59, 109, 0.07);
+    }
+
+    .kullanici-mesaji {
+        border-bottom-right-radius: 4px;
+        background-color: #123b6d;
+        color: white;
+    }
+
+    .asistan-mesaji {
+        border: 1px solid #dce4ee;
+        border-bottom-left-radius: 4px;
+        background-color: white;
+        color: #344054;
+    }
+
+    .mesaj-icerigi {
+        line-height: 1.65;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .mesaj-zamani {
+        margin-top: 6px;
+        font-size: 10px;
+        text-align: right;
+        opacity: 0.65;
+    }
+
+    .mesaj-form-alani {
+        padding: 19px 22px;
+        border-top: 1px solid #dce4ee;
+        background-color: white;
+    }
+
+    .mesaj-giris-grubu {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+
+        .mesaj-giris-grubu textarea {
+            min-height: 58px;
+            max-height: 150px;
+            resize: vertical;
+        }
+
+    .mesaj-gonder-buton {
+        min-width: 105px;
+        min-height: 48px;
+    }
+
+    @@media (max-width: 576px) {
+        .sohbet-alani {
+            height: 410px;
+            padding: 16px;
+        }
+
+        .mesaj-balonu {
+            max-width: 88%;
+        }
+
+        .mesaj-giris-grubu {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .mesaj-gonder-buton {
+            width: 100%;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sohbetAlani =
+                document.getElementById("sohbetAlani");
+
+            const mesajInput =
+                document.getElementById("mesajInput");
+
+            const mesajFormu =
+                document.getElementById("mesajFormu");
+
+            const gonderButonu =
+                document.getElementById("gonderButonu");
+
+            if (sohbetAlani) {
+                sohbetAlani.scrollTop =
+                    sohbetAlani.scrollHeight;
+            }
+
+            document.querySelectorAll(".ornek-soru")
+                .forEach(function (buton) {
+                    buton.addEventListener(
+                        "click",
+                        function () {
+                            if (!mesajInput) {
+                                return;
+                            }
+
+                            mesajInput.value =
+                                buton.dataset.message ?? "";
+
+                            mesajInput.focus();
+                        });
+                });
+
+            if (mesajFormu && gonderButonu) {
+                mesajFormu.addEventListener(
+                    "submit",
+                    function () {
+                        gonderButonu.disabled = true;
+                        gonderButonu.textContent = "Bekleyiniz...";
+                    });
+            }
+        });
+    </script>
+}

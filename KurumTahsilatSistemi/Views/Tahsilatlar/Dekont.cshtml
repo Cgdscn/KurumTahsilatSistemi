@@ -1,0 +1,517 @@
+﻿@model KurumTahsilatSistemi.Models.Tahsilat
+
+@{
+    ViewData["Title"] = "Tahsilat Dekontu";
+
+    var basariliMi = Model.IslemDurumu == "Başarılı";
+    var iptalMi = Model.IslemDurumu == "İptal";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+
+        @if (TempData["BasariMesaji"] != null)
+        {
+            <div class="alert alert-success yazdirma-disinda">
+                @TempData["BasariMesaji"]
+            </div>
+        }
+
+        <div class="dekont-kapsayici" id="dekontAlani">
+
+            <div class="dekont-ust">
+                <div class="dekont-marka">
+                    <div class="dekont-logo">
+                        KT
+                    </div>
+
+                    <div>
+                        <h3>Kurum Tahsilat Sistemi</h3>
+
+                        <p>
+                            Kurumsal Tahsilat İşlem Dekontu
+                        </p>
+                    </div>
+                </div>
+
+                <div class="dekont-durum">
+                    @if (basariliMi)
+                    {
+                        <span class="durum-basarili">
+                            ✓ Başarılı
+                        </span>
+                    }
+                    else if (iptalMi)
+                    {
+                        <span class="durum-iptal">
+                            × İptal Edildi
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="durum-diger">
+                            @Model.IslemDurumu
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="dekont-islem-no">
+                <span>İşlem Numarası</span>
+
+                <strong>@Model.IslemNo</strong>
+            </div>
+
+            <div class="dekont-bolum">
+                <div class="dekont-bolum-baslik">
+                    İşlem Bilgileri
+                </div>
+
+                <div class="dekont-grid">
+
+                    <div class="dekont-alan">
+                        <span>İşlem Tarihi</span>
+
+                        <strong>
+                            @Model.IslemTarihi.ToString("dd.MM.yyyy HH:mm:ss")
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>İşlem Durumu</span>
+
+                        <strong>@Model.IslemDurumu</strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Ödeme Kanalı</span>
+
+                        <strong>@Model.OdemeKanali</strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Referans Numarası</span>
+
+                        <strong>
+                            @Model.Borc?.ReferansNo
+                        </strong>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="dekont-bolum">
+                <div class="dekont-bolum-baslik">
+                    Kurum ve Ürün Bilgileri
+                </div>
+
+                <div class="dekont-grid">
+
+                    <div class="dekont-alan">
+                        <span>Kurum Adı</span>
+
+                        <strong>
+                            @Model.Borc?.TahsilatUrunu?.Kurum?.KurumAdi
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Kurum Kodu</span>
+
+                        <strong>
+                            @Model.Borc?.TahsilatUrunu?.Kurum?.KurumKodu
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Tahsilat Ürünü</span>
+
+                        <strong>
+                            @Model.Borc?.TahsilatUrunu?.UrunAdi
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Ürün Kodu</span>
+
+                        <strong>
+                            @Model.Borc?.TahsilatUrunu?.UrunKodu
+                        </strong>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="dekont-bolum">
+                <div class="dekont-bolum-baslik">
+                    Müşteri Bilgileri
+                </div>
+
+                <div class="dekont-grid">
+
+                    <div class="dekont-alan">
+                        <span>Müşteri Adı</span>
+
+                        <strong>
+                            @Model.Borc?.MusteriAdi
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Müşteri Numarası</span>
+
+                        <strong>
+                            @Model.Borc?.MusteriNo
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Son Ödeme Tarihi</span>
+
+                        <strong>
+                            @Model.Borc?.SonOdemeTarihi.ToString("dd.MM.yyyy")
+                        </strong>
+                    </div>
+
+                    <div class="dekont-alan">
+                        <span>Borç Durumu</span>
+
+                        <strong>
+                            @Model.Borc?.Durum
+                        </strong>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="dekont-tutar">
+                <div>
+                    <span>Tahsil Edilen Tutar</span>
+
+                    <small>
+                        İşlem kapsamında tahsil edilen toplam tutar
+                    </small>
+                </div>
+
+                <strong>
+                    @Model.OdenenTutar.ToString("N2") TL
+                </strong>
+            </div>
+
+            @if (iptalMi)
+            {
+                <div class="iptal-bilgisi">
+                    <div class="iptal-baslik">
+                        İptal Bilgileri
+                    </div>
+
+                    <div class="dekont-grid">
+
+                        <div class="dekont-alan">
+                            <span>İptal Tarihi</span>
+
+                            <strong>
+                                @Model.IptalTarihi?.ToString("dd.MM.yyyy HH:mm:ss")
+                            </strong>
+                        </div>
+
+                        <div class="dekont-alan">
+                            <span>İptal Nedeni</span>
+
+                            <strong>
+                                @Model.IptalNedeni
+                            </strong>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+            <div class="dekont-alt">
+                <p>
+                    Bu belge, gerçekleştirilen kurum tahsilatı işlemine ait
+                    bilgilendirme dekontudur.
+                </p>
+
+                <div>
+                    Oluşturulma zamanı:
+                    @DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dekont-butonlar yazdirma-disinda">
+
+            <button type="button"
+                    class="btn btn-primary"
+                    onclick="window.print()">
+                Dekontu Yazdır
+            </button>
+
+            <a asp-controller="Borclar"
+               asp-action="Sorgula"
+               class="btn btn-secondary">
+                Borç Sorgulamaya Dön
+            </a>
+
+            <a asp-controller="Tahsilatlar"
+               asp-action="Gecmis"
+               class="btn btn-outline-dark">
+                Tahsilat Geçmişi
+            </a>
+
+            <a asp-controller="Tahsilatlar"
+               asp-action="DekontPdf"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-danger">
+
+                PDF Dekont İndir
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .dekont-kapsayici {
+        overflow: hidden;
+        border: 1px solid #dce4ee;
+        border-radius: 16px;
+        background-color: white;
+        box-shadow: 0 12px 35px rgba(18, 59, 109, 0.11);
+    }
+
+    .dekont-ust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 25px 28px;
+        background: linear-gradient(135deg, #0b294d, #123b6d);
+        color: white;
+    }
+
+    .dekont-marka {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .dekont-logo {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 14px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .dekont-marka h3 {
+        margin: 0 0 4px;
+        color: white;
+        font-size: 21px;
+    }
+
+    .dekont-marka p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+    }
+
+    .dekont-durum span {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 13px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .durum-basarili {
+        background-color: #dff6ee;
+        color: #116653;
+    }
+
+    .durum-iptal {
+        background-color: #fde6e6;
+        color: #a92f2f;
+    }
+
+    .durum-diger {
+        background-color: rgba(255, 255, 255, 0.16);
+        color: white;
+    }
+
+    .dekont-islem-no {
+        padding: 19px 28px;
+        border-bottom: 1px solid #e6ebf2;
+        background-color: #f8fafc;
+    }
+
+        .dekont-islem-no span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .dekont-islem-no strong {
+            color: #123b6d;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+    .dekont-bolum {
+        padding: 23px 28px;
+        border-bottom: 1px solid #e6ebf2;
+    }
+
+    .dekont-bolum-baslik {
+        margin-bottom: 17px;
+        color: #123b6d;
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .dekont-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 30px;
+    }
+
+    .dekont-alan span {
+        display: block;
+        margin-bottom: 5px;
+        color: #667085;
+        font-size: 12px;
+    }
+
+    .dekont-alan strong {
+        display: block;
+        color: #1d2939;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .dekont-tutar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        margin: 25px 28px;
+        padding: 21px 23px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #123b6d, #1d5b9e);
+        color: white;
+    }
+
+        .dekont-tutar span {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .dekont-tutar small {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .dekont-tutar > strong {
+            flex-shrink: 0;
+            font-size: 27px;
+        }
+
+    .iptal-bilgisi {
+        margin: 0 28px 25px;
+        padding: 20px;
+        border: 1px solid #f2caca;
+        border-left: 5px solid #d44848;
+        border-radius: 11px;
+        background-color: #fff7f7;
+    }
+
+    .iptal-baslik {
+        margin-bottom: 15px;
+        color: #a92f2f;
+        font-weight: 750;
+    }
+
+    .dekont-alt {
+        padding: 20px 28px;
+        border-top: 1px solid #e6ebf2;
+        background-color: #f8fafc;
+        color: #667085;
+        font-size: 12px;
+        text-align: center;
+    }
+
+        .dekont-alt p {
+            margin-bottom: 5px;
+        }
+
+    .dekont-butonlar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    @@media (max-width: 767px) {
+        .dekont-ust {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .dekont-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dekont-tutar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+            .dekont-tutar > strong {
+                font-size: 23px;
+            }
+    }
+
+    @@media print {
+        header,
+        footer,
+        .yazdirma-disinda {
+            display: none !important;
+        }
+
+        body,
+        main {
+            padding: 0 !important;
+            background-color: white !important;
+        }
+
+        .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+
+        .dekont-kapsayici {
+            border: 1px solid #777;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .dekont-ust,
+        .dekont-tutar {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+    }
+</style>

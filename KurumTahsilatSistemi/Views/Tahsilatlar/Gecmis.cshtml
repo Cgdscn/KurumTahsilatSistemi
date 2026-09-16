@@ -1,0 +1,546 @@
+﻿@model IEnumerable<KurumTahsilatSistemi.Models.Tahsilat>
+
+@{
+    var adminMi = User.IsInRole("Admin");
+
+    ViewData["Title"] = adminMi
+        ? "Tahsilat Geçmişi"
+        : "Tahsilat Geçmişim";
+}
+
+<div class="d-flex flex-column flex-md-row
+            justify-content-between align-items-md-center
+            gap-3 mb-4">
+
+    <div>
+        <h2 class="mb-2">
+            @(adminMi
+                        ? "Tahsilat Geçmişi"
+                        : "Tahsilat Geçmişim")
+        </h2>
+
+        <p class="text-muted mb-0">
+            @if (adminMi)
+            {
+                <span>
+                    Sistemde gerçekleştirilen bütün tahsilat işlemleri
+                    listelenmektedir.
+                </span>
+            }
+            else
+            {
+                <span>
+                    Yalnızca hesabınızla gerçekleştirdiğiniz tahsilat
+                    işlemleri listelenmektedir.
+                </span>
+            }
+        </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+
+       
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Ana Sayfaya Dön
+        </a>
+
+    </div>
+</div>
+
+@if (TempData["BasariMesaji"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert">
+
+        @TempData["BasariMesaji"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat">
+        </button>
+    </div>
+}
+
+@if (TempData["HataMesaji"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show"
+         role="alert">
+
+        @TempData["HataMesaji"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat">
+        </button>
+    </div>
+}
+
+<div class="card">
+
+    <div class="card-header d-flex
+                justify-content-between align-items-center
+                flex-wrap gap-2">
+
+        <span>
+            @(adminMi
+                        ? "Tüm Tahsilat Kayıtları"
+                        : "Tahsilat Kayıtlarım")
+        </span>
+
+        <span class="kayit-sayisi">
+            Toplam @Model.Count() kayıt
+        </span>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        @if (!Model.Any())
+        {
+            <div class="bos-kayit-alani">
+
+                <div class="bos-kayit-simgesi">
+                    T
+                </div>
+
+                <h5>Tahsilat kaydı bulunamadı</h5>
+
+                <p>
+                    @if (adminMi)
+                    {
+                        <span>
+                            Sistemde henüz gerçekleştirilmiş tahsilat
+                            işlemi bulunmamaktadır.
+                        </span>
+                    }
+                    else
+                    {
+                        <span>
+                            Hesabınız üzerinden henüz tahsilat işlemi
+                            gerçekleştirilmemiştir.
+                        </span>
+                    }
+                </p>
+
+                <a asp-controller="Borclar"
+                   asp-action="Sorgula"
+                   class="btn btn-primary">
+                    Borç Sorgulamaya Git
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle
+                                  gecmis-table mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>İşlem Bilgisi</th>
+                            <th>Kurum / Ürün</th>
+                            <th>Müşteri</th>
+                            <th>Referans No</th>
+                            <th>Tutar / Kanal</th>
+
+                            @if (adminMi)
+                            {
+                                <th>İşlemi Yapan</th>
+                            }
+
+                            <th>Durum / İptal</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var tahsilat in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-bold islem-numarasi">
+                                        @(tahsilat.IslemNo ?? "-")
+                                    </div>
+
+                                    <div class="small text-muted mt-1">
+                                        @(tahsilat.IslemTarihi.ToString("dd.MM.yyyy HH:mm"))
+                                                                        
+                                                                                                  </div>
+                                                                                              </td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        @(tahsilat.Borc?
+                                                                        .TahsilatUrunu?
+                                                                        .Kurum?
+                                                                        .KurumAdi ?? "-")
+                                                                                     </div>
+
+                                    <div class="small text-muted mt-1">
+                                        @(tahsilat.Borc?
+                                                                        .TahsilatUrunu?
+                                                                        .UrunAdi ?? "-")
+                                                                                    </div>
+                                                                                </td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        @(tahsilat.Borc?.MusteriAdi ?? "-")
+                                    </div>
+
+                                    <div class="small text-muted mt-1">
+                                        No:
+                                        @(tahsilat.Borc?.MusteriNo ?? "-")
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="referans-etiketi">
+                                        @(tahsilat.Borc?.ReferansNo ?? "-")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="fw-semibold tahsilat-tutari">
+                                        @(tahsilat.OdenenTutar.ToString("N2")) TL
+                                                                        
+                            </div>
+
+                                    <div class="small text-muted mt-1">
+                                        @(tahsilat.OdemeKanali ?? "-")
+                                    </div>
+                                </td>
+
+                        @if (adminMi)
+                                {
+                                    <td>
+                                        @if (tahsilat.ApplicationUser != null)
+                                        {
+                                            var adSoyad =
+                                            tahsilat.ApplicationUser.AdSoyad;
+
+                                            var kullaniciHarfi =
+                                            string.IsNullOrWhiteSpace(adSoyad)
+                                            ? "K"
+                                            : adSoyad.Substring(0, 1)
+                                            .ToUpper();
+
+                                            <div class="kullanici-bilgisi">
+
+                                                <div class="kullanici-avatar">
+                                                    @kullaniciHarfi
+                                                </div>
+
+                                                <div>
+                                                    <div class="fw-semibold">
+                                                        @(string.IsNullOrWhiteSpace(adSoyad)
+                                                                                                ? "Kullanıcı"
+                                                                                                : adSoyad)
+                                                                                                      </div>
+
+                                                    <div class="small text-muted
+                                                                                kullanici-email">
+                                                        @(tahsilat
+                                                                                                .ApplicationUser
+                                                                                                .Email ?? "-")
+                                    </div>
+                                </div>
+
+                                            </div>
+                                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Eski Kayıt
+                                            </span>
+
+                                            <div class="small text-muted mt-1">
+                                                Kullanıcı bilgisi bulunmuyor
+                                            </div>
+                                        }
+                                    </td>
+                                }
+
+                                <td>
+                                    @if (tahsilat.IslemDurumu == "Başarılı")
+                                    {
+                                        <span class="badge bg-success">
+                                            Başarılı
+                                        </span>
+                                    }
+                                    else if (tahsilat.IslemDurumu == "İptal")
+                                    {
+                                        <div class="mb-1">
+                                            <span class="badge bg-danger">
+                                                İptal
+                                            </span>
+                                        </div>
+
+                                        <div class="small iptal-bilgisi">
+
+                                            <div>
+                                                <strong>Tarih:</strong>
+
+                                                @(tahsilat.IptalTarihi?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                                                                                    
+                                                                                   
+                                                                                       </div>
+
+                                            <div class="iptal-nedeni"
+                                                 title="@tahsilat.IptalNedeni">
+
+                                                <strong>Neden:</strong>
+
+                                                @(string.IsNullOrWhiteSpace(
+                                                                                    tahsilat.IptalNedeni)
+                                                                                    ? "-"
+                                                                                    : tahsilat.IptalNedeni)
+                                </div>
+
+                                        </div>
+                                                        }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            @(tahsilat.IslemDurumu ?? "-")
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <div class="d-flex
+                                                        justify-content-end
+                                                        flex-column gap-2">
+
+                                        <a asp-controller="Tahsilatlar"
+                                           asp-action="Dekont"
+                                           asp-route-id="@tahsilat.Id"
+                                           class="btn btn-outline-primary
+                                                          btn-sm">
+                                            Dekont
+                                        </a>
+
+                                        <a asp-controller="Tahsilatlar"
+                                           asp-action="DekontPdf"
+                                           asp-route-id="@tahsilat.Id"
+                                           class="btn btn-outline-danger btn-sm">
+
+                                            PDF
+                                        </a>
+
+                                        @if (adminMi &&
+                                                                        tahsilat.IslemDurumu == "Başarılı")
+                                        {
+                                            <a asp-controller="Tahsilatlar"
+                                               asp-action="Iptal"
+                                               asp-route-id="@tahsilat.Id"
+                                               class="btn btn-outline-danger
+                                                                  btn-sm">
+                                                İptal Et
+                                            </a>
+                                        }
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+</div>
+
+<div class="yetki-bilgi-kutusu mt-4">
+
+    <div class="yetki-bilgi-simgesi">
+        i
+    </div>
+
+    <div>
+        <strong>Yetkilendirme bilgisi</strong>
+
+        <p class="mb-0">
+            @if (adminMi)
+            {
+                <span>
+                    Admin hesabı tüm kullanıcıların tahsilatlarını
+                    görüntüleyebilir ve başarılı işlemleri iptal edebilir.
+                </span>
+            }
+            else
+            {
+                <span>
+                    Kullanıcı hesabı yalnızca kendi tahsilatlarını ve
+                    bu işlemlere ait dekontları görüntüleyebilir.
+                </span>
+            }
+        </p>
+    </div>
+
+</div>
+
+<style>
+    .kayit-sayisi {
+        padding: 6px 10px;
+        border: 1px solid #dce4ee;
+        border-radius: 8px;
+        background-color: white;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .gecmis-table {
+        width: 100%;
+        min-width: 1150px;
+        font-size: 12px;
+    }
+
+        .gecmis-table th,
+        .gecmis-table td {
+            padding: 12px 10px;
+            vertical-align: middle;
+        }
+
+        .gecmis-table th {
+            white-space: nowrap;
+        }
+
+    .islem-numarasi {
+        color: #123b6d;
+        white-space: nowrap;
+    }
+
+    .tahsilat-tutari {
+        color: #116653;
+        white-space: nowrap;
+    }
+
+    .referans-etiketi {
+        display: inline-block;
+        max-width: 140px;
+        padding: 5px 8px;
+        overflow: hidden;
+        border: 1px solid #dce4ee;
+        border-radius: 7px;
+        background-color: #f8fafc;
+        color: #475467;
+        font-size: 11px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .kullanici-bilgisi {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 165px;
+    }
+
+    .kullanici-avatar {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 10px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .kullanici-email {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .iptal-bilgisi {
+        max-width: 170px;
+        color: #667085;
+        line-height: 1.6;
+    }
+
+    .iptal-nedeni {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .gecmis-table .btn-sm {
+        min-width: 75px;
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    .bos-kayit-alani {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .bos-kayit-simgesi {
+        width: 62px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        border-radius: 17px;
+        background-color: #e7f0fa;
+        color: #123b6d;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .bos-kayit-alani p {
+        max-width: 520px;
+        margin: 0 auto 20px;
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .yetki-bilgi-kutusu {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 18px;
+        border: 1px solid #cddff1;
+        border-left: 4px solid #1d5b9e;
+        border-radius: 10px;
+        background-color: #f5f9fd;
+    }
+
+    .yetki-bilgi-simgesi {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #123b6d;
+        color: white;
+        font-weight: 800;
+    }
+
+    .yetki-bilgi-kutusu p {
+        margin-top: 4px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+</style>

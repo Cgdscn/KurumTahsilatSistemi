@@ -1,0 +1,297 @@
+﻿@model KurumTahsilatSistemi.ViewModels.TahsilatIptalViewModel
+
+@{
+    ViewData["Title"] = "Tahsilat İptali";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+
+        <div class="mb-4">
+            <h2 class="mb-2">Tahsilat İptali</h2>
+
+            <p class="text-muted mb-0">
+                Tahsilat bilgilerini kontrol ederek iptal nedenini giriniz.
+            </p>
+        </div>
+
+        <div class="alert alert-warning d-flex align-items-start gap-3">
+            <div class="uyari-simgesi">
+                !
+            </div>
+
+            <div>
+                <strong>Dikkat</strong>
+
+                <div class="mt-1">
+                    Tahsilat iptal edildiğinde ilgili borç yeniden
+                    <strong>Ödenmedi</strong> durumuna getirilecektir.
+                    İptal edilen tahsilat kaydı geçmişten silinmeyecektir.
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-5">
+                <div class="card h-100">
+
+                    <div class="card-header">
+                        Tahsilat Bilgileri
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="iptal-ozet-satiri">
+                            <span>İşlem Numarası</span>
+
+                            <strong class="islem-numarasi">
+                                @Model.IslemNo
+                            </strong>
+                        </div>
+
+                        <div class="iptal-ozet-satiri">
+                            <span>Müşteri</span>
+
+                            <strong>
+                                @Model.MusteriAdi
+                            </strong>
+                        </div>
+
+                        <div class="iptal-ozet-satiri">
+                            <span>Referans Numarası</span>
+
+                            <strong>
+                                @Model.ReferansNo
+                            </strong>
+                        </div>
+
+                        <div class="iptal-tutar">
+                            <span>İptal Edilecek Tutar</span>
+
+                            <strong>
+                                @Model.OdenenTutar.ToString("N2") TL
+                            </strong>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card h-100">
+
+                    <div class="card-header">
+                        İptal Nedeni
+                    </div>
+
+                    <div class="card-body">
+
+                        <form asp-action="Iptal" method="post">
+
+                            <input type="hidden"
+                                   asp-for="TahsilatId" />
+
+                            <input type="hidden"
+                                   asp-for="IslemNo" />
+
+                            <input type="hidden"
+                                   asp-for="MusteriAdi" />
+
+                            <input type="hidden"
+                                   asp-for="ReferansNo" />
+
+                            <input type="hidden"
+                                   asp-for="OdenenTutar" />
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="alert alert-danger">
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="IptalNedeni"
+                                       class="form-label">
+                                </label>
+
+                                <textarea asp-for="IptalNedeni"
+                                          class="form-control"
+                                          rows="6"
+                                          maxlength="250"
+                                          placeholder="Tahsilatın neden iptal edildiğini açıklayınız.">
+                                </textarea>
+
+                                <span asp-validation-for="IptalNedeni"
+                                      class="text-danger">
+                                </span>
+
+                                <div class="d-flex justify-content-between
+                                            mt-2 small text-muted">
+                                    <span>
+                                        İptal nedeni işlem geçmişinde
+                                        görüntülenecektir.
+                                    </span>
+
+                                    <span id="karakterSayaci">
+                                        0 / 250
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="iptal-sonuc-kutusu mb-4">
+                                <strong>İptal sonucunda</strong>
+
+                                <ul class="mb-0 mt-2">
+                                    <li>
+                                        Tahsilat durumu İptal olarak güncellenecek.
+                                    </li>
+
+                                    <li>
+                                        Borç tekrar Ödenmedi durumuna dönecek.
+                                    </li>
+
+                                    <li>
+                                        İşlem ve iptal bilgileri geçmişte korunacak.
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <button type="submit"
+                                        class="btn btn-danger"
+                                        onclick="return confirm('Tahsilatı iptal etmek istediğinizden emin misiniz?')">
+                                    Tahsilatı İptal Et
+                                </button>
+
+                                <a asp-action="Gecmis"
+                                   class="btn btn-secondary">
+                                    Vazgeç
+                                </a>
+
+                                <a asp-action="Dekont"
+                                   asp-route-id="@Model.TahsilatId"
+                                   class="btn btn-outline-dark">
+                                    Dekontu Görüntüle
+                                </a>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .uyari-simgesi {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #e2a52b;
+        color: white;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .iptal-ozet-satiri {
+        padding: 14px 0;
+        border-bottom: 1px solid #e7ecf2;
+    }
+
+        .iptal-ozet-satiri span {
+            display: block;
+            margin-bottom: 5px;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .iptal-ozet-satiri strong {
+            display: block;
+            color: #1d2939;
+            word-break: break-word;
+        }
+
+    .islem-numarasi {
+        color: #123b6d !important;
+        letter-spacing: 1px;
+    }
+
+    .iptal-tutar {
+        margin-top: 22px;
+        padding: 20px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #a92f2f, #d44848);
+        color: white;
+    }
+
+        .iptal-tutar span {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 13px;
+        }
+
+        .iptal-tutar strong {
+            display: block;
+            font-size: 25px;
+        }
+
+    .iptal-sonuc-kutusu {
+        padding: 17px 19px;
+        border: 1px solid #f0cccc;
+        border-left: 4px solid #d44848;
+        border-radius: 10px;
+        background-color: #fff7f7;
+        color: #5f3434;
+    }
+
+        .iptal-sonuc-kutusu strong {
+            color: #a92f2f;
+        }
+
+        .iptal-sonuc-kutusu ul {
+            padding-left: 20px;
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const iptalNedeni =
+            document.getElementById("IptalNedeni");
+
+        const karakterSayaci =
+            document.getElementById("karakterSayaci");
+
+        function karakterSayisiniGuncelle() {
+            if (!iptalNedeni || !karakterSayaci) {
+                return;
+            }
+
+            karakterSayaci.textContent =
+                `${iptalNedeni.value.length} / 250`;
+        }
+
+        if (iptalNedeni) {
+            iptalNedeni.addEventListener(
+                "input",
+                karakterSayisiniGuncelle
+            );
+
+            karakterSayisiniGuncelle();
+        }
+    </script>
+}
