@@ -18,7 +18,7 @@ The application provides a centralized platform for managing institutions, custo
 
 ## Tech Stack
 
-Backend:** C#, .NET 8, ASP.NET Core MVC, Entity Framework Core
+**Backend:** C#, .NET 8, ASP.NET Core MVC, Entity Framework Core
 
 **Database:** Microsoft SQL Server
 
